@@ -47,47 +47,69 @@ export function CourseCatalog() {
     },
     {
       id: 3,
-      title: "Derecho Penal Práctico",
-      university: "UBA",
-      career: "Derecho",
+      title: "Ingeniería Industrial",
+      university: "UADE",
+      career: "Ingeniería",
       duration: "5 semanas",
-      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
-      enrolled: 650,
+      image: "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=400&h=200&fit=crop",
+      enrolled: 12,
       rating: 4.7,
       trending: false
     },
     {
       id: 4,
-      title: "Ingeniería de Software",
-      university: "ITBA",
-      career: "Ingeniería",
+      title: "Economía y Finanzas",
+      university: "UCEMA",
+      career: "Economía",
       duration: "6 semanas",
-      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
-      enrolled: 920,
-      rating: 4.8,
-      trending: true
-    },
-    {
-      id: 5,
-      title: "Diseño de Moda",
-      university: "UADE",
-      career: "Diseño",
-      duration: "4 semanas",
-      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
-      enrolled: 480,
+      image: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=400&h=200&fit=crop",
+      enrolled: 0,
       rating: 4.6,
       trending: false
     },
     {
+      id: 5,
+      title: "Cine y TV",
+      university: "ENERC",
+      career: "Cine",
+      duration: "4 semanas",
+      image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&h=200&fit=crop",
+      enrolled: 5,
+      rating: 4.8,
+      trending: true
+    },
+    {
       id: 6,
-      title: "Arquitectura Sostenible",
-      university: "UB",
+      title: "Arquitectura",
+      university: "Universidad Di Tella",
       career: "Arquitectura",
       duration: "5 semanas",
       image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
-      enrolled: 540,
+      enrolled: 9,
       rating: 4.7,
       trending: false
+    },
+    {
+      id: 7,
+      title: "Marketing Digital",
+      university: "UADE",
+      career: "Marketing",
+      duration: "6 semanas",
+      image: "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=400&h=200&fit=crop",
+      enrolled: 15,
+      rating: 4.6,
+      trending: false
+    },
+    {
+      id: 8,
+      title: "Medicina en Acción",
+      university: "Universidad Austral",
+      career: "Medicina",
+      duration: "4 semanas",
+      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
+      enrolled: 2,
+      rating: 4.9,
+      trending: true
     }
   ]
 

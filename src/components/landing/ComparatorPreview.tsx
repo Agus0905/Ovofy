@@ -1,82 +1,74 @@
-import { motion } from 'framer-motion'
-import { ArrowRight, Check } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export function ComparatorPreview() {
-  const comparisonData = [
-    { university: "Di Tella", cost: "$12,000/mes", duration: "4 años", ranking: "#1" },
-    { university: "UBA", cost: "$2,500/mes", duration: "5-6 años", ranking: "#2" },
-    { university: "Austral", cost: "$15,000/mes", duration: "4 años", ranking: "#3" }
-  ]
+  const navigate = useNavigate()
 
   return (
-    <section className="py-20 lg:py-32 bg-warm-cream dark:bg-[#1a1814]">
+    <section className="py-20 bg-warm-cream dark:bg-[#0f0e0c]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-4xl lg:text-5xl font-serif text-dark-brown dark:text-[#f5f0e8] mb-6">
-            Compará Universidades
-          </h2>
-          <p className="text-lg lg:text-xl text-dark-brown/80 dark:text-gray-300 max-w-3xl mx-auto">
-            Compará costos, duración y ranking de las mejores universidades argentinas
-          </p>
-        </motion.div>
+        <h2 className="text-3xl lg:text-4xl font-serif text-center text-dark-brown dark:text-[#f5f0e8] mb-12">
+          Compará universidades lado a lado
+        </h2>
 
-        {/* Comparison Table Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
-          className="bg-white dark:bg-[#1a1814] rounded-2xl shadow-lg overflow-hidden mb-8"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <select className="px-4 py-3 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8]">
+            <option>Universidad Di Tella</option>
+            <option>Universidad de Buenos Aires</option>
+            <option>UADE</option>
+            <option>UCEMA</option>
+          </select>
+
+          <select className="px-4 py-3 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8]">
+            <option>Universidad de Buenos Aires</option>
+            <option>Universidad Di Tella</option>
+            <option>UADE</option>
+            <option>UCEMA</option>
+          </select>
+        </div>
+
+        <div className="bg-white dark:bg-[#1a1814] rounded-2xl shadow-lg overflow-hidden mb-8">
           <table className="w-full">
-            <thead className="bg-amber/10">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-dark-brown dark:text-[#f5f0e8]">Universidad</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-dark-brown dark:text-[#f5f0e8]">Costo</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-dark-brown dark:text-[#f5f0e8]">Duración</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-dark-brown dark:text-[#f5f0e8]">Ranking</th>
+            <thead>
+              <tr className="bg-dark-brown/5 dark:bg-white/5">
+                <th className="px-6 py-4 text-left text-sm font-medium text-dark-brown dark:text-[#f5f0e8]">Criterio</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-dark-brown dark:text-[#f5f0e8]">Di Tella</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-dark-brown dark:text-[#f5f0e8]">UBA</th>
               </tr>
             </thead>
             <tbody>
-              {comparisonData.map((uni, index) => (
-                <tr key={index} className="border-t border-dark-brown/10 dark:border-white/10">
-                  <td className="px-6 py-4 font-medium text-dark-brown dark:text-[#f5f0e8]">{uni.university}</td>
-                  <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">{uni.cost}</td>
-                  <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">{uni.duration}</td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center gap-1 bg-amber/10 text-amber px-3 py-1 rounded-full text-sm font-medium">
-                      <Check className="w-4 h-4" />
-                      {uni.ranking}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              <tr className="border-t border-dark-brown/10 dark:border-white/10">
+                <td className="px-6 py-4 font-medium text-dark-brown dark:text-[#f5f0e8]">Ubicación</td>
+                <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">Buenos Aires</td>
+                <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">Buenos Aires</td>
+              </tr>
+              <tr className="border-t border-dark-brown/10 dark:border-white/10">
+                <td className="px-6 py-4 font-medium text-dark-brown dark:text-[#f5f0e8]">Costo anual</td>
+                <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">$15,000 USD</td>
+                <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">Gratuito</td>
+              </tr>
+              <tr className="border-t border-dark-brown/10 dark:border-white/10">
+                <td className="px-6 py-4 font-medium text-dark-brown dark:text-[#f5f0e8]">Duración</td>
+                <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">5 años</td>
+                <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">5-6 años</td>
+              </tr>
+              <tr className="border-t border-dark-brown/10 dark:border-white/10">
+                <td className="px-6 py-4 font-medium text-dark-brown dark:text-[#f5f0e8]">Ranking</td>
+                <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">#1 Nacional</td>
+                <td className="px-6 py-4 text-dark-brown/80 dark:text-gray-300">#2 Nacional</td>
+              </tr>
             </tbody>
           </table>
-        </motion.div>
+        </div>
 
-        {/* CTA Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <a
-            href="/comparar"
-            className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4"
+        <div className="text-center">
+          <button
+            onClick={() => navigate('/comparar')}
+            className="btn-primary px-8 py-3 flex items-center gap-2 mx-auto"
           >
-            Ver Comparador Completo
-            <ArrowRight className="w-5 h-5" />
-          </a>
-        </motion.div>
+            Ver comparación completa <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </section>
   )

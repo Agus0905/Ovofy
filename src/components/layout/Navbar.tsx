@@ -1,21 +1,41 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { UserMenu } from './UserMenu'
 import { useAuth } from '../../contexts/AuthContext'
+import { UserMenu } from './UserMenu'
+import { Sun, Moon } from 'lucide-react'
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const { profile } = useAuth()
   const location = useLocation()
 
   useEffect(() => {
+    const saved = localStorage.getItem('ovofy_theme')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    if (saved === 'dark' || (!saved && prefersDark)) {
+      setIsDarkMode(true)
+      document.documentElement.classList.add('dark')
+    }
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode)
+    if (!isDarkMode) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('ovofy_theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('ovofy_theme', 'light')
+    }
+  }
 
   const navLinks = [
     { name: 'Inicio', path: '/' },
@@ -42,7 +62,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -56,6 +76,12 @@ export function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-lg text-dark-brown dark:text-[#f5f0e8] hover:bg-dark-brown/10 dark:hover:bg-white/10 transition-colors"
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
           </div>
 
           {/* User Menu / Login Button */}
@@ -65,7 +91,7 @@ export function Navbar() {
             ) : (
               <button
                 onClick={() => {/* TODO: Open auth modal */}}
-                className="btn-primary text-sm px-4 py-2"
+                className="btn-outline text-sm px-4 py-2"
               >
                 Iniciar Sesión
               </button>
@@ -105,12 +131,19 @@ export function Navbar() {
                   {link.name}
                 </Link>
               ))}
+              <button
+                onClick={toggleDarkMode}
+                className="flex items-center gap-2 text-sm font-medium text-dark-brown dark:text-[#f5f0e8]"
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}
+              </button>
               {profile ? (
                 <div className="pt-4 border-t border-dark-brown/10 dark:border-white/10">
                   <UserMenu />
                 </div>
               ) : (
-                <button className="btn-primary text-sm px-4 py-2 w-full">
+                <button className="btn-outline text-sm px-4 py-2 w-full">
                   Iniciar Sesión
                 </button>
               )}
