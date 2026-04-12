@@ -1,0 +1,238 @@
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Search, Filter, Users, Clock } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
+
+const universities = ["Todas", "Di Tella", "UB", "UADE", "UCEMA", "ENERC"]
+const careers = ["Todas", "Medicina", "Administración", "Derecho", "Ingeniería", "Diseño"]
+
+interface CoursePreviewProps {
+  openAuthModal: (mode: 'login' | 'register') => void
+}
+
+export function CoursePreview({ openAuthModal }: CoursePreviewProps) {
+  const { user } = useAuth()
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedUniversity, setSelectedUniversity] = useState("Todas")
+  const [selectedCareer, setSelectedCareer] = useState("Todas")
+  const [showTrending, setShowTrending] = useState(false)
+  const [enrolledCourse, setEnrolledCourse] = useState<number | null>(null)
+
+  const handleEnroll = (courseId: number) => {
+    if (!user) {
+      openAuthModal('register')
+      return
+    }
+
+    // Enroll the user in the course
+    setEnrolledCourse(courseId)
+    // TODO: Implement actual enrollment logic with Supabase
+    setTimeout(() => setEnrolledCourse(null), 3000)
+  }
+
+  const courses = [
+    {
+      id: 1,
+      title: "Medicina en Acción",
+      university: "Universidad Austral",
+      career: "Medicina",
+      duration: "4 semanas",
+      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
+      enrolled: 1200,
+      rating: 4.9,
+      trending: true
+    },
+    {
+      id: 2,
+      title: "Negocios Digitales",
+      university: "Di Tella",
+      career: "Administración",
+      duration: "3 semanas",
+      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
+      enrolled: 850,
+      rating: 4.8,
+      trending: true
+    },
+    {
+      id: 3,
+      title: "Derecho Penal Práctico",
+      university: "UBA",
+      career: "Derecho",
+      duration: "5 semanas",
+      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
+      enrolled: 650,
+      rating: 4.7,
+      trending: false
+    },
+    {
+      id: 4,
+      title: "Ingeniería de Software",
+      university: "ITBA",
+      career: "Ingeniería",
+      duration: "6 semanas",
+      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
+      enrolled: 920,
+      rating: 4.8,
+      trending: true
+    },
+    {
+      id: 5,
+      title: "Diseño de Moda",
+      university: "UADE",
+      career: "Diseño",
+      duration: "4 semanas",
+      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
+      enrolled: 480,
+      rating: 4.6,
+      trending: false
+    },
+    {
+      id: 6,
+      title: "Arquitectura Sostenible",
+      university: "UB",
+      career: "Arquitectura",
+      duration: "5 semanas",
+      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
+      enrolled: 540,
+      rating: 4.7,
+      trending: false
+    }
+  ]
+
+  const filteredCourses = courses.filter(course => {
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.career.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesUniversity = selectedUniversity === "Todas" || course.university === selectedUniversity
+    const matchesCareer = selectedCareer === "Todas" || course.career === selectedCareer
+    const matchesTrending = !showTrending || course.trending
+    
+    return matchesSearch && matchesUniversity && matchesCareer && matchesTrending
+  })
+
+  return (
+    <section id="catalog-section" className="py-20 lg:py-32 bg-warm-cream dark:bg-[#1a1814]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl lg:text-5xl font-serif text-dark-brown dark:text-[#f5f0e8] mb-6">
+            Explorá Nuestros Cursos
+          </h2>
+          <p className="text-lg lg:text-xl text-dark-brown/80 dark:text-gray-300 max-w-3xl mx-auto">
+            Cursos prácticos de las mejores universidades argentinas
+          </p>
+        </motion.div>
+
+        {/* Search Bar */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="mb-8"
+        >
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-brown/40 dark:text-gray-500" />
+            <input
+              type="text"
+              placeholder="Buscar cursos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-xl text-dark-brown dark:text-[#f5f0e8] placeholder-dark-brown/40 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber"
+            />
+          </div>
+        </motion.div>
+
+        {/* Filters */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="flex flex-wrap gap-4 mb-8"
+        >
+          <select
+            value={selectedUniversity}
+            onChange={(e) => setSelectedUniversity(e.target.value)}
+            className="px-4 py-2 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8]"
+          >
+            {universities.map(uni => (
+              <option key={uni} value={uni}>{uni}</option>
+            ))}
+          </select>
+
+          <select
+            value={selectedCareer}
+            onChange={(e) => setSelectedCareer(e.target.value)}
+            className="px-4 py-2 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8]"
+          >
+            {careers.map(career => (
+              <option key={career} value={career}>{career}</option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => setShowTrending(!showTrending)}
+            className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
+              showTrending
+                ? 'bg-amber text-white border-amber'
+                : 'bg-white dark:bg-[#1a1814] border-dark-brown/20 dark:border-[#2a2620] text-dark-brown dark:text-[#f5f0e8]'
+            }`}
+          >
+            <Clock className="w-4 h-4" />
+            <span>Trending</span>
+          </button>
+        </motion.div>
+
+        {/* Course Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCourses.map((course, index) => (
+            <motion.div
+              key={course.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="bg-white dark:bg-[#1a1814] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              <img
+                src={course.image}
+                alt={course.title}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-amber font-medium">{course.university}</span>
+                  {course.trending && (
+                    <span className="text-xs bg-amber/10 text-amber px-2 py-1 rounded-full">Trending</span>
+                  )}
+                </div>
+                <h3 className="text-xl font-serif font-semibold text-dark-brown dark:text-[#f5f0e8] mb-2">
+                  {course.title}
+                </h3>
+                <p className="text-sm text-dark-brown/60 dark:text-gray-400 mb-4">{course.career}</p>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2 text-sm text-dark-brown/60 dark:text-gray-400">
+                    <Users className="w-4 h-4" />
+                    <span>{course.enrolled} inscritos</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-amber">★</span>
+                    <span className="text-sm text-dark-brown dark:text-[#f5f0e8]">{course.rating}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleEnroll(course.id)}
+                  className="btn-primary w-full"
+                >
+                  {enrolledCourse === course.id ? '¡Inscripto!' : 'Inscribirme'}
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
