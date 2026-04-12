@@ -3,22 +3,63 @@ import { useState } from 'react'
 export function VocationalQuiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<number[]>([])
+  const [showResults, setShowResults] = useState(false)
 
   const questions = [
     {
       id: 1,
-      question: "¿Qué tipo de actividades disfrutás más?",
-      options: ["Trabajar con personas", "Resolver problemas lógicos", "Crear cosas nuevas", "Analizar datos"]
+      question: "Si pudieras pasar un día completo haciendo lo que más te gusta, ¿qué elegirías?",
+      options: ["Ayudar a resolver conflictos entre personas", "Diseñar y construir algo nuevo", "Analizar datos para encontrar patrones", "Cuidar la salud de otras personas"]
     },
     {
       id: 2,
-      question: "¿Qué materia te interesa más?",
-      options: ["Ciencias Sociales", "Matemática", "Arte", "Biología"]
+      question: "Cuando tenés que resolver un problema complejo, ¿qué es lo primero que hacés?",
+      options: ["Pienso en cómo afecta a las personas involucradas", "Busco soluciones creativas y originales", "Investigo y analizo toda la información", "Pido ayuda y trabajo en equipo"]
     },
     {
       id: 3,
-      question: "¿Cómo preferís trabajar?",
-      options: ["En equipo", "Solo", "Liderando grupos", "Con orientación clara"]
+      question: "¿Qué tipo de proyectos te emocionan más?",
+      options: ["Los que impactan positivamente en la sociedad", "Los que requieren innovación y diseño", "Los que necesitan análisis profundo", "Los que involucran trabajo directo con gente"]
+    },
+    {
+      id: 4,
+      question: "En un grupo de trabajo, ¿qué rol solemos asignarte?",
+      options: ["El mediador o líder social", "El creativo que propone ideas", "El analista que estudia los datos", "El organizador que mantiene el equipo unido"]
+    },
+    {
+      id: 5,
+      question: "¿Qué tipo de lectura o contenido te atrae más?",
+      options: ["Historias sobre personas y sociedad", "Revistas de diseño y arquitectura", "Artículos científicos y técnicos", "Noticias sobre salud y bienestar"]
+    },
+    {
+      id: 6,
+      question: "Si tuvieras que explicar un tema complejo, ¿cómo lo harías?",
+      options: ["Usando ejemplos de la vida real", "Con diagramas y dibujos", "Con datos y estadísticas", "Con historias y metáforas"]
+    },
+    {
+      id: 7,
+      question: "¿Qué ambiente de trabajo te imagina ideal para tu futuro?",
+      options: ["Una oficina llena de gente y reuniones", "Un estudio creativo con libertad", "Un laboratorio o espacio de investigación", "Un hospital o centro de salud"]
+    },
+    {
+      id: 8,
+      question: "¿Qué te motiva más cuando enfrentás un desafío?",
+      options: ["Ver que mi trabajo ayuda a otros", "Crear algo que nunca existió antes", "Encontrar la solución correcta", "Trabajar en equipo para lograr el objetivo"]
+    }
+  ]
+
+  const careerRecommendations = [
+    {
+      title: "Derecho / Ciencias Sociales",
+      description: "Tu perfil se destaca por la empatía y el interés en el impacto social"
+    },
+    {
+      title: "Diseño / Arquitectura",
+      description: "Tu creatividad y visión innovadora son tus mayores fortalezas"
+    },
+    {
+      title: "Ingeniería / Economía",
+      description: "Tu capacidad analítica y lógica te destacan en áreas técnicas"
     }
   ]
 
@@ -28,78 +69,81 @@ export function VocationalQuiz() {
 
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
+    } else {
+      setShowResults(true)
     }
+  }
+
+  const handleRestart = () => {
+    setCurrentQuestion(0)
+    setAnswers([])
+    setShowResults(false)
   }
 
   return (
     <div className="min-h-screen bg-warm-cream dark:bg-[#0f0e0c] pt-20">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl lg:text-5xl font-serif text-dark-brown dark:text-[#f5f0e8] mb-6 text-center">
-          Test Vocacional
-        </h1>
-        <p className="text-lg text-dark-brown/80 dark:text-gray-300 text-center mb-12">
-          Descubrí qué carrera es ideal para vos
-        </p>
-
-        {currentQuestion < questions.length ? (
-          <div className="bg-white dark:bg-[#1a1814] rounded-2xl shadow-lg p-8">
-            <div className="mb-6">
+        {!showResults ? (
+          <>
+            <div className="mb-8">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-sm text-amber font-medium">
                   Pregunta {currentQuestion + 1} de {questions.length}
                 </span>
-                <div className="w-full bg-dark-brown/10 dark:bg-white/10 rounded-full h-2 ml-4">
+                <div className="flex-1 bg-dark-brown/10 dark:bg-white/10 rounded-full h-2 ml-4">
                   <div
                     className="bg-amber h-2 rounded-full transition-all"
                     style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
                   />
                 </div>
               </div>
-              <h2 className="text-2xl font-serif font-semibold text-dark-brown dark:text-[#f5f0e8]">
-                {questions[currentQuestion].question}
-              </h2>
             </div>
 
-            <div className="space-y-3">
-              {questions[currentQuestion].options.map((option, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleAnswer(index)}
-                  className="w-full px-6 py-4 bg-warm-cream dark:bg-[#0f0e0c] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8] hover:border-amber hover:amber transition-colors text-left"
-                >
-                  {option}
-                </button>
-              ))}
+            <div className="bg-white dark:bg-[#1a1814] rounded-2xl shadow-lg p-8">
+              <h2 className="text-3xl font-serif font-semibold text-dark-brown dark:text-[#f5f0e8] mb-8">
+                {questions[currentQuestion].question}
+              </h2>
+
+              <div className="grid grid-cols-1 gap-4">
+                {questions[currentQuestion].options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswer(index)}
+                    className="px-6 py-6 bg-warm-cream dark:bg-[#0f0e0c] border-2 border-dark-brown/20 dark:border-[#2a2620] rounded-xl text-dark-brown dark:text-[#f5f0e8] hover:border-amber transition-all text-left hover:shadow-md"
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         ) : (
           <div className="bg-white dark:bg-[#1a1814] rounded-2xl shadow-lg p-8 text-center">
-            <h2 className="text-3xl font-serif font-bold text-dark-brown dark:text-[#f5f0e8] mb-6">
+            <h2 className="text-4xl font-serif font-bold text-dark-brown dark:text-[#f5f0e8] mb-4">
               ¡Test Completado!
             </h2>
             <p className="text-lg text-dark-brown/80 dark:text-gray-300 mb-8">
-              Basado en tus respuestas, te recomendamos explorar carreras en:
+              Basado en tus respuestas, estas son las áreas que más te podrían interesar:
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <div className="bg-amber/10 rounded-xl p-4">
-                <h3 className="font-semibold text-amber mb-2">Ciencias Sociales</h3>
-                <p className="text-sm text-dark-brown/80 dark:text-gray-300">Derecho, Economía, Psicología</p>
-              </div>
-              <div className="bg-amber/10 rounded-xl p-4">
-                <h3 className="font-semibold text-amber mb-2">Tecnología</h3>
-                <p className="text-sm text-dark-brown/80 dark:text-gray-300">Ingeniería, Ciencias de Datos</p>
-              </div>
-              <div className="bg-amber/10 rounded-xl p-4">
-                <h3 className="font-semibold text-amber mb-2">Salud</h3>
-                <p className="text-sm text-dark-brown/80 dark:text-gray-300">Medicina, Enfermería</p>
-              </div>
+            <div className="grid grid-cols-1 gap-6 mb-8">
+              {careerRecommendations.map((rec, index) => (
+                <div key={index} className="bg-amber/10 rounded-xl p-6 border-2 border-amber">
+                  <h3 className="text-xl font-semibold text-amber mb-2">{rec.title}</h3>
+                  <p className="text-dark-brown/80 dark:text-gray-300">{rec.description}</p>
+                </div>
+              ))}
             </div>
-            <button
-              onClick={() => { setCurrentQuestion(0); setAnswers([]) }}
-              className="btn-primary px-8 py-3"
-            >
-              Volver a hacer el test
-            </button>
+            <div className="space-y-4">
+              <button
+                onClick={handleRestart}
+                className="btn-primary px-8 py-3"
+              >
+                Volver a hacer el test
+              </button>
+              <p className="text-sm text-dark-brown/60 dark:text-gray-400">
+                Recordá que este test es solo una guía. Te recomendamos probar cursos de diferentes áreas para descubrir tu verdadera vocación.
+              </p>
+            </div>
           </div>
         )}
       </div>
