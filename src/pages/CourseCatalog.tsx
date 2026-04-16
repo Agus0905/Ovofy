@@ -1,233 +1,122 @@
 import { useState } from 'react'
-import { Search, Users, Clock } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { Search, SlidersHorizontal, TrendingUp } from 'lucide-react'
+import { useCourses } from '../hooks/useCourses'
+import { CourseCard } from '../components/catalog/CourseCard'
 
-const universities = ["Todas", "Di Tella", "UB", "UADE", "UCEMA", "ENERC"]
-const careers = ["Todas", "Medicina", "Administración", "Derecho", "Ingeniería", "Diseño"]
+const universities = ["Todas", "UTDT", "UCEMA", "ITBA", "UdeSA"]
+const categories = ["Todas", "Negocios", "Economía", "Tecnología", "Diseño"]
 
 export function CourseCatalog() {
-  const { user } = useAuth()
+  const { courses, loading } = useCourses()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedUniversity, setSelectedUniversity] = useState("Todas")
-  const [selectedCareer, setSelectedCareer] = useState("Todas")
+  const [selectedCategory, setSelectedCategory] = useState("Todas")
   const [showTrending, setShowTrending] = useState(false)
-  const [enrolledCourse, setEnrolledCourse] = useState<number | null>(null)
-
-  const handleEnroll = (courseId: number) => {
-    if (!user) {
-      alert('Por favor inicia sesión para inscribirte')
-      return
-    }
-    setEnrolledCourse(courseId)
-    setTimeout(() => setEnrolledCourse(null), 3000)
-  }
-
-  const courses = [
-    {
-      id: 1,
-      title: "Medicina en Acción",
-      university: "Universidad Austral",
-      career: "Medicina",
-      duration: "4 semanas",
-      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
-      enrolled: 1200,
-      rating: 4.9,
-      trending: true
-    },
-    {
-      id: 2,
-      title: "Negocios Digitales",
-      university: "Di Tella",
-      career: "Administración",
-      duration: "3 semanas",
-      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
-      enrolled: 850,
-      rating: 4.8,
-      trending: true
-    },
-    {
-      id: 3,
-      title: "Ingeniería Industrial",
-      university: "UADE",
-      career: "Ingeniería",
-      duration: "5 semanas",
-      image: "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=400&h=200&fit=crop",
-      enrolled: 12,
-      rating: 4.7,
-      trending: false
-    },
-    {
-      id: 4,
-      title: "Economía y Finanzas",
-      university: "UCEMA",
-      career: "Economía",
-      duration: "6 semanas",
-      image: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=400&h=200&fit=crop",
-      enrolled: 0,
-      rating: 4.6,
-      trending: false
-    },
-    {
-      id: 5,
-      title: "Cine y TV",
-      university: "ENERC",
-      career: "Cine",
-      duration: "4 semanas",
-      image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&h=200&fit=crop",
-      enrolled: 5,
-      rating: 4.8,
-      trending: true
-    },
-    {
-      id: 6,
-      title: "Arquitectura",
-      university: "Universidad Di Tella",
-      career: "Arquitectura",
-      duration: "5 semanas",
-      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
-      enrolled: 9,
-      rating: 4.7,
-      trending: false
-    },
-    {
-      id: 7,
-      title: "Marketing Digital",
-      university: "UADE",
-      career: "Marketing",
-      duration: "6 semanas",
-      image: "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=400&h=200&fit=crop",
-      enrolled: 15,
-      rating: 4.6,
-      trending: false
-    },
-    {
-      id: 8,
-      title: "Medicina en Acción",
-      university: "Universidad Austral",
-      career: "Medicina",
-      duration: "4 semanas",
-      image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
-      enrolled: 2,
-      rating: 4.9,
-      trending: true
-    }
-  ]
 
   const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.career.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesUniversity = selectedUniversity === "Todas" || course.university === selectedUniversity
-    const matchesCareer = selectedCareer === "Todas" || course.career === selectedCareer
-    const matchesTrending = !showTrending || course.trending
+    const matchesSearch = course.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesUniversity = selectedUniversity === "Todas" || course.universities.nombre === selectedUniversity
+    const matchesCategory = selectedCategory === "Todas" || course.nombre.includes(selectedCategory) || course.descripcion.includes(selectedCategory)
+    const matchesTrending = !showTrending || course.tendencia
     
-    return matchesSearch && matchesUniversity && matchesCareer && matchesTrending
+    return matchesSearch && matchesUniversity && matchesCategory && matchesTrending
   })
 
   return (
-    <div className="min-h-screen bg-warm-cream dark:bg-[#0f0e0c] pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl lg:text-5xl font-serif text-dark-brown dark:text-[#f5f0e8] mb-6">
-            Catálogo de Cursos
-          </h1>
-          <p className="text-lg lg:text-xl text-dark-brown/80 dark:text-gray-300 max-w-3xl mx-auto">
-            Cursos prácticos de las mejores universidades argentinas
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative max-w-2xl mx-auto">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-brown/40 dark:text-gray-500" />
+    <div className="min-h-screen bg-warm-cream dark:bg-[#0f0e0c] pt-24 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div className="max-w-2xl">
+            <h1 className="text-4xl md:text-5xl font-serif font-bold text-dark-brown dark:text-white mb-4">
+              Explorá tu <span className="text-amber">futuro</span>
+            </h1>
+            <p className="text-lg text-dark-brown/60 dark:text-gray-400">
+              Descubrí carreras universitarias a través de experiencias prácticas diseñadas por las mejores instituciones.
+            </p>
+          </div>
+          
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-brown/30 dark:text-gray-500 group-focus-within:text-amber transition-colors" />
             <input
               type="text"
-              placeholder="Buscar cursos..."
+              placeholder="¿Qué te gustaría probar?"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-xl text-dark-brown dark:text-[#f5f0e8] placeholder-dark-brown/40 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber"
+              className="pl-12 pr-6 py-4 bg-white dark:bg-[#1a1814] border border-dark-brown/10 dark:border-white/10 rounded-2xl w-full md:w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber/20 focus:border-amber transition-all dark:text-white"
             />
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4 mb-8 justify-center">
-          <select
-            value={selectedUniversity}
-            onChange={(e) => setSelectedUniversity(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8]"
-          >
-            {universities.map(uni => (
-              <option key={uni} value={uni}>{uni}</option>
-            ))}
-          </select>
-
-          <select
-            value={selectedCareer}
-            onChange={(e) => setSelectedCareer(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8]"
-          >
-            {careers.map(career => (
-              <option key={career} value={career}>{career}</option>
-            ))}
-          </select>
-
-          <button
-            onClick={() => setShowTrending(!showTrending)}
-            className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
-              showTrending
-                ? 'bg-amber text-white border-amber'
-                : 'bg-white dark:bg-[#1a1814] border-dark-brown/20 dark:border-[#2a2620] text-dark-brown dark:text-[#f5f0e8]'
-            }`}
-          >
-            <Clock className="w-4 h-4" />
-            <span>Trending</span>
-          </button>
-        </div>
-
-        {/* Course Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map((course) => (
-            <div
-              key={course.id}
-              className="bg-white dark:bg-[#1a1814] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <img
-                src={course.image}
-                alt={course.title}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-amber font-medium">{course.university}</span>
-                  {course.trending && (
-                    <span className="text-xs bg-amber/10 text-amber px-2 py-1 rounded-full">Trending</span>
-                  )}
-                </div>
-                <h3 className="text-xl font-serif font-semibold text-dark-brown dark:text-[#f5f0e8] mb-2">
-                  {course.title}
-                </h3>
-                <p className="text-sm text-dark-brown/60 dark:text-gray-400 mb-4">{course.career}</p>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 text-sm text-dark-brown/60 dark:text-gray-400">
-                    <Users className="w-4 h-4" />
-                    <span>{course.enrolled} inscritos</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-amber">★</span>
-                    <span className="text-sm text-dark-brown dark:text-[#f5f0e8]">{course.rating}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleEnroll(course.id)}
-                  className="btn-primary w-full"
-                >
-                  {enrolledCourse === course.id ? '¡Inscripto!' : 'Inscribirme'}
-                </button>
-              </div>
+        {/* Filters and Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-10 pb-6 border-b border-dark-brown/5 dark:border-white/5">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 px-4 py-2 bg-dark-brown/5 dark:bg-white/5 rounded-xl text-dark-brown/60 dark:text-gray-400">
+              <SlidersHorizontal className="w-4 h-4" />
+              <span className="text-xs font-bold uppercase tracking-wider">Filtros</span>
             </div>
-          ))}
+            
+            <select
+              value={selectedUniversity}
+              onChange={(e) => setSelectedUniversity(e.target.value)}
+              className="px-4 py-2 bg-white dark:bg-[#1a1814] border border-dark-brown/10 dark:border-white/10 rounded-xl text-sm font-medium text-dark-brown dark:text-gray-300 focus:outline-none focus:border-amber"
+            >
+              {universities.map(uni => (
+                <option key={uni} value={uni}>{uni === 'Todas' ? 'Todas las Universidades' : uni}</option>
+              ))}
+            </select>
+
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-4 py-2 bg-white dark:bg-[#1a1814] border border-dark-brown/10 dark:border-white/10 rounded-xl text-sm font-medium text-dark-brown dark:text-gray-300 focus:outline-none focus:border-amber"
+            >
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat === 'Todas' ? 'Todas las Categorías' : cat}</option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => setShowTrending(!showTrending)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                showTrending 
+                  ? 'bg-amber text-white shadow-md' 
+                  : 'bg-white dark:bg-[#1a1814] border border-dark-brown/10 dark:border-white/10 text-dark-brown/60 dark:text-gray-400 hover:border-amber hover:text-amber'
+              }`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              Populares
+            </button>
+          </div>
+
+          <div className="text-sm text-dark-brown/40 dark:text-gray-500 font-medium">
+            Mostrando {filteredCourses.length} cursos
+          </div>
         </div>
+
+        {/* Results Grid */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="animate-pulse bg-white dark:bg-[#1a1814] rounded-2xl h-96 shadow-sm border border-dark-brown/5 dark:border-white/5" />
+            ))}
+          </div>
+        ) : filteredCourses.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredCourses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <div className="w-20 h-20 bg-dark-brown/5 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Search className="w-10 h-10 text-dark-brown/20 dark:text-gray-600" />
+            </div>
+            <h3 className="text-2xl font-serif font-bold text-dark-brown dark:text-white mb-2">No encontramos resultados</h3>
+            <p className="text-dark-brown/60 dark:text-gray-400">Intentá ajustando los filtros o buscando otra cosa.</p>
+          </div>
+        )}
       </div>
     </div>
   )

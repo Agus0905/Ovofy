@@ -13,43 +13,46 @@ export function HeroSection({ openAuthModal }: HeroSectionProps) {
   }
 
   return (
-    <section className="relative min-h-screen flex items-center bg-warm-cream dark:bg-[#0f0e0c] pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <section className="relative min-h-screen flex items-center bg-warm-cream dark:bg-[#0f0e0c] pt-20 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left Content */}
-          <div className="space-y-8">
-            <h1 className="text-5xl lg:text-7xl font-serif font-bold text-dark-brown dark:text-[#f5f0e8] leading-tight">
-              Descubrí tu carrera{' '}
-              <span className="text-amber">antes de elegirla</span>
+          <div className="space-y-10">
+            <h1 className="text-6xl lg:text-8xl font-serif font-bold text-dark-brown dark:text-white leading-[1.1]">
+              Descubrí tu carrera <br />
+              <span className="text-amber">antes</span> de elegirla
             </h1>
-            <p className="text-xl text-dark-brown/80 dark:text-gray-300 max-w-lg">
-              Experimentá carreras reales en las mejores universidades de Argentina.
+            <p className="text-xl lg:text-2xl text-dark-brown/60 dark:text-gray-400 max-w-lg leading-relaxed">
+              Experimentá el mundo universitario real antes de tomar la decisión más importante de tu vida.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-5">
               <button
                 onClick={() => openAuthModal('register')}
-                className="btn-primary px-8 py-4 text-lg flex items-center gap-2"
+                className="bg-amber hover:bg-amber/90 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-xl shadow-amber/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-3"
               >
-                Inscribirme <ArrowRight className="w-5 h-5" />
+                Empezar ahora <ArrowRight className="w-6 h-6" />
               </button>
               <button 
                 onClick={scrollToCatalog}
-                className="btn-outline px-8 py-4 text-lg"
+                className="bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-dark-brown/10 dark:border-white/10 text-dark-brown dark:text-white px-10 py-5 rounded-2xl text-lg font-bold transition-all hover:bg-white dark:hover:bg-white/10"
               >
-                Ver Cursos
+                Ver Catálogo
               </button>
             </div>
           </div>
 
           {/* Right Card */}
-          <div className="bg-white dark:bg-[#1a1814] rounded-2xl p-8 shadow-xl border-l-4 border-amber">
-            <div className="text-7xl font-serif font-bold text-amber mb-4">40%</div>
-            <p className="text-xl text-dark-brown dark:text-[#f5f0e8] mb-6">
-              de los estudiantes abandona su carrera antes de terminar el primer año
-            </p>
-            <p className="text-dark-brown/60 dark:text-gray-400">
-              1 de cada 3 estudiantes tarda más de 2 años en decidir su carrera
-            </p>
+          <div className="relative">
+            <div className="absolute -inset-4 bg-amber/10 blur-3xl rounded-full"></div>
+            <div className="relative bg-white dark:bg-[#1a1814] rounded-[2.5rem] p-12 shadow-2xl border-l-[12px] border-amber transform lg:rotate-2 hover:rotate-0 transition-transform duration-700">
+              <div className="text-8xl lg:text-9xl font-serif font-bold text-amber mb-6 leading-none">40%</div>
+              <p className="text-2xl lg:text-3xl font-bold text-dark-brown dark:text-white mb-8 leading-tight">
+                de los estudiantes abandona su carrera en el primer año.
+              </p>
+              <p className="text-lg text-dark-brown/50 dark:text-gray-400 font-medium italic">
+                "No era lo que yo esperaba" es la razón principal.
+              </p>
+            </div>
           </div>
         </div>
       </div>

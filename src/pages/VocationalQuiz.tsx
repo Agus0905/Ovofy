@@ -50,16 +50,19 @@ export function VocationalQuiz() {
 
   const careerRecommendations = [
     {
-      title: "Derecho / Ciencias Sociales",
-      description: "Tu perfil se destaca por la empatía y el interés en el impacto social"
+      title: "Negocios Digitales / Economía",
+      match: "94%",
+      description: "Tu perfil se destaca por la capacidad analítica y el interés en la innovación tecnológica."
     },
     {
-      title: "Diseño / Arquitectura",
-      description: "Tu creatividad y visión innovadora son tus mayores fortalezas"
+      title: "Diseño Global / Creatividad",
+      match: "88%",
+      description: "Tu visión original y enfoque en el usuario son ideales para carreras creativas modernas."
     },
     {
-      title: "Ingeniería / Economía",
-      description: "Tu capacidad analítica y lógica te destacan en áreas técnicas"
+      title: "Ingeniería / Ciencias Técnicas",
+      match: "76%",
+      description: "La resolución de problemas complejos y el pensamiento lógico son tus mayores fortalezas."
     }
   ]
 
@@ -118,18 +121,24 @@ export function VocationalQuiz() {
             </div>
           </>
         ) : (
-          <div className="bg-white dark:bg-[#1a1814] rounded-2xl shadow-lg p-8 text-center">
+          <div className="bg-white dark:bg-[#1a1814] rounded-2xl shadow-lg p-10 text-center">
             <h2 className="text-4xl font-serif font-bold text-dark-brown dark:text-[#f5f0e8] mb-4">
               ¡Test Completado!
             </h2>
-            <p className="text-lg text-dark-brown/80 dark:text-gray-300 mb-8">
-              Basado en tus respuestas, estas son las áreas que más te podrían interesar:
+            <p className="text-lg text-dark-brown/80 dark:text-gray-300 mb-10">
+              Basado en tus respuestas, estas son tus compatibilidades:
             </p>
-            <div className="grid grid-cols-1 gap-6 mb-8">
+            <div className="grid grid-cols-1 gap-6 mb-10">
               {careerRecommendations.map((rec, index) => (
-                <div key={index} className="bg-amber/10 rounded-xl p-6 border-2 border-amber">
-                  <h3 className="text-xl font-semibold text-amber mb-2">{rec.title}</h3>
-                  <p className="text-dark-brown/80 dark:text-gray-300">{rec.description}</p>
+                <div key={index} className="bg-warm-cream dark:bg-[#0f0e0c] rounded-2xl p-6 border border-dark-brown/10 dark:border-white/10 flex items-center justify-between text-left hover:border-amber transition-all">
+                  <div>
+                    <h3 className="text-xl font-bold text-dark-brown dark:text-white mb-1">{rec.title}</h3>
+                    <p className="text-sm text-dark-brown/70 dark:text-gray-400">{rec.description}</p>
+                  </div>
+                  <div className="ml-6 flex flex-col items-center">
+                    <span className="text-3xl font-serif font-bold text-amber">{rec.match}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-dark-brown/40 dark:text-gray-500">Match</span>
+                  </div>
                 </div>
               ))}
             </div>

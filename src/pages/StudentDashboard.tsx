@@ -1,309 +1,165 @@
-import { useState } from 'react'
+import { Calendar, BookOpen, User, Hexagon, Trophy, Star, Target, Zap, Clock } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 
 export function StudentDashboard() {
-  const [activeTab, setActiveTab] = useState('panel')
+  const { profile } = useAuth()
+
+  const medals = [
+    { icon: Trophy, color: 'text-amber', bg: 'bg-amber/10', label: 'Primer Paso' },
+    { icon: Star, color: 'text-blue-400', bg: 'bg-blue-400/10', label: 'Explorador' },
+    { icon: Target, color: 'text-green-400', bg: 'bg-green-400/10', label: 'Decidido' },
+    { icon: Zap, color: 'text-purple-400', bg: 'bg-purple-400/10', label: 'Rápido' },
+  ]
+
+  const agenda = [
+    { title: 'Clase Magistral: Negocios', time: 'En 2 días', date: 'Sábado 10:00', type: 'Live' },
+    { title: 'Taller de Diseño Global', time: 'En 5 días', date: 'Martes 18:30', type: 'Workshop' },
+  ]
 
   return (
-    <div className="min-h-screen bg-[#0f0e0c] pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-[#1a1814] rounded-2xl p-6 sticky top-24">
-              <div className="flex flex-col items-center mb-6">
-                <div className="w-24 h-24 bg-amber rounded-full flex items-center justify-center mb-4">
-                  <span className="text-3xl font-bold text-white">JS</span>
+    <div className="min-h-screen bg-[#0f0e0c] text-white pt-24 pb-20 font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* Sidebar - Profile Info */}
+          <div className="lg:col-span-3 space-y-6">
+            <div className="bg-[#1a1814] rounded-3xl p-8 border border-white/5 text-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-24 bg-amber/10"></div>
+              <div className="relative">
+                <div className="w-24 h-24 bg-amber rounded-[2rem] flex items-center justify-center mx-auto mb-4 shadow-xl shadow-amber/20">
+                  <span className="text-3xl font-serif font-bold text-white">
+                    {profile?.nombre?.[0]}{profile?.apellido?.[0]}
+                  </span>
                 </div>
-                <h3 className="text-xl font-semibold text-white">Juan Smith</h3>
-                <p className="text-gray-400 text-sm">Colegio Nacional Buenos Aires</p>
-                <p className="text-gray-400 text-sm">Palermo</p>
+                <h3 className="text-2xl font-serif font-bold mb-1">{profile?.nombre} {profile?.apellido}</h3>
+                <p className="text-amber text-sm font-bold uppercase tracking-widest mb-6">Nivel 4 Explorador</p>
+                
+                <div className="space-y-3 text-left">
+                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                    <BookOpen className="w-4 h-4 text-amber" />
+                    <span>{profile?.colegio}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                    <User className="w-4 h-4 text-amber" />
+                    <span>{profile?.barrio}</span>
+                  </div>
+                </div>
               </div>
+            </div>
 
-              {/* Medals */}
-              <div className="mb-6">
-                <h4 className="text-sm font-semibold text-gray-400 mb-3">Medallas</h4>
-                <div className="flex flex-wrap gap-2">
-                  <div className="w-8 h-8 bg-amber/20 rounded-full flex items-center justify-center">
-                    <span className="text-amber">🏆</span>
+            {/* Medals Grid */}
+            <div className="bg-[#1a1814] rounded-3xl p-6 border border-white/5">
+              <h4 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-4">Medallas Ganadas</h4>
+              <div className="grid grid-cols-2 gap-3">
+                {medals.map((medal, i) => (
+                  <div key={i} className={`${medal.bg} rounded-2xl p-4 flex flex-col items-center gap-2 group hover:scale-105 transition-transform cursor-pointer`}>
+                    <medal.icon className={`w-8 h-8 ${medal.color}`} />
+                    <span className="text-[10px] font-bold uppercase text-white/70">{medal.label}</span>
                   </div>
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
-                    <span className="text-blue-400">⭐</span>
-                  </div>
-                  <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                    <span className="text-green-400">🎯</span>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {/* Tabs */}
-            <div className="flex gap-2 mb-8 bg-[#1a1814] p-1 rounded-lg">
-              <button
-                onClick={() => setActiveTab('panel')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                  activeTab === 'panel'
-                    ? 'bg-amber text-white'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                Mi Panel
-              </button>
-              <button
-                onClick={() => setActiveTab('courses')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                  activeTab === 'courses'
-                    ? 'bg-amber text-white'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                Mis Cursos
-              </button>
-              <button
-                onClick={() => setActiveTab('data')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                  activeTab === 'data'
-                    ? 'bg-amber text-white'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                Mis Datos
-              </button>
+          {/* Main Content Area */}
+          <div className="lg:col-span-9 space-y-8">
+            {/* Header Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'Cursos', value: '03', icon: BookOpen },
+                { label: 'Encuentros', value: '12', icon: Calendar },
+                { label: 'Proyectos', value: '05', icon: Target },
+                { label: 'Horas', value: '24', icon: Clock },
+              ].map((stat, i) => (
+                <div key={i} className="bg-[#1a1814] p-6 rounded-3xl border border-white/5 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-amber/10 rounded-2xl flex items-center justify-center">
+                    <stat.icon className="w-6 h-6 text-amber" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-serif font-bold">{stat.value}</div>
+                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">{stat.label}</div>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* Tab Content */}
-            <div className="bg-[#1a1814] rounded-2xl p-6">
-              {activeTab === 'panel' && (
-                <div className="space-y-8">
-                  <section>
-                    <h2 className="text-2xl font-serif font-semibold text-white mb-4">Pasaporte de Carreras</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="bg-white/5 rounded-xl p-4 text-center">
-                        <p className="text-amber text-2xl font-bold">3</p>
-                        <p className="text-gray-400 text-sm">Cursos completados</p>
-                      </div>
-                      <div className="bg-white/5 rounded-xl p-4 text-center">
-                        <p className="text-amber text-2xl font-bold">2</p>
-                        <p className="text-gray-400 text-sm">En progreso</p>
-                      </div>
-                      <div className="bg-white/5 rounded-xl p-4 text-center">
-                        <p className="text-amber text-2xl font-bold">5</p>
-                        <p className="text-gray-400 text-sm">Carreras exploradas</p>
-                      </div>
-                      <div className="bg-white/5 rounded-xl p-4 text-center">
-                        <p className="text-amber text-2xl font-bold">24</p>
-                        <p className="text-gray-400 text-sm">Horas totales</p>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section>
-                    <h2 className="text-2xl font-serif font-semibold text-white mb-4">Tu Agenda</h2>
-                    <div className="space-y-3">
-                      <div className="bg-white/5 rounded-xl p-4 flex items-center gap-4">
-                        <div className="w-2 h-12 bg-amber rounded-full" />
-                        <div>
-                          <p className="text-white font-medium">Diseño Gráfico - Encuentro 3</p>
-                          <p className="text-gray-400 text-sm">Sábado 10:00 AM</p>
-                        </div>
-                      </div>
-                      <div className="bg-white/5 rounded-xl p-4 flex items-center gap-4">
-                        <div className="w-2 h-12 bg-blue-500 rounded-full" />
-                        <div>
-                          <p className="text-white font-medium">Ingeniería Industrial - Encuentro 2</p>
-                          <p className="text-gray-400 text-sm">Miércoles 4:00 PM</p>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section>
-                    <h2 className="text-2xl font-serif font-semibold text-white mb-4">Tu Mapa Vocacional</h2>
-                    <div className="bg-white/5 rounded-xl p-6">
-                      <div className="aspect-square max-w-md mx-auto relative">
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-32 h-32 bg-amber/20 rounded-full flex items-center justify-center">
-                            <span className="text-amber font-bold">Perfil</span>
-                          </div>
-                        </div>
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2">
-                          <div className="bg-amber/30 rounded-lg px-3 py-1 text-center">
-                            <p className="text-white text-xs">Creatividad</p>
-                            <p className="text-amber font-bold">85%</p>
-                          </div>
-                        </div>
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2">
-                          <div className="bg-blue-500/30 rounded-lg px-3 py-1 text-center">
-                            <p className="text-white text-xs">Lógica</p>
-                            <p className="text-blue-400 font-bold">70%</p>
-                          </div>
-                        </div>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2">
-                          <div className="bg-green-500/30 rounded-lg px-3 py-1 text-center">
-                            <p className="text-white text-xs">Social</p>
-                            <p className="text-green-400 font-bold">90%</p>
-                          </div>
-                        </div>
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2">
-                          <div className="bg-purple-500/30 rounded-lg px-3 py-1 text-center">
-                            <p className="text-white text-xs">Análisis</p>
-                            <p className="text-purple-400 font-bold">75%</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section>
-                    <h2 className="text-2xl font-serif font-semibold text-white mb-4">Tus Fortalezas</h2>
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-white">Creatividad</span>
-                          <span className="text-amber">85%</span>
-                        </div>
-                        <div className="w-full bg-white/10 rounded-full h-2">
-                          <div className="bg-amber h-2 rounded-full" style={{ width: '85%' }} />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-white">Trabajo en equipo</span>
-                          <span className="text-amber">90%</span>
-                        </div>
-                        <div className="w-full bg-white/10 rounded-full h-2">
-                          <div className="bg-amber h-2 rounded-full" style={{ width: '90%' }} />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-white">Resolución de problemas</span>
-                          <span className="text-amber">75%</span>
-                        </div>
-                        <div className="w-full bg-white/10 rounded-full h-2">
-                          <div className="bg-amber h-2 rounded-full" style={{ width: '75%' }} />
-                        </div>
-                      </div>
-                    </div>
-                  </section>
+            {/* Dashboard Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              
+              {/* Skill Map - Hexagonal representation */}
+              <div className="bg-[#1a1814] rounded-3xl p-8 border border-white/5">
+                <h3 className="text-xl font-serif font-bold mb-8 flex items-center gap-2">
+                  <Hexagon className="w-5 h-5 text-amber" /> Mi Mapa de Skills
+                </h3>
+                <div className="relative h-64 flex items-center justify-center">
+                  <div className="absolute inset-0 border-[1px] border-white/5 rounded-full scale-100"></div>
+                  <div className="absolute inset-0 border-[1px] border-white/5 rounded-full scale-75"></div>
+                  <div className="absolute inset-0 border-[1px] border-white/5 rounded-full scale-50"></div>
+                  
+                  {/* Hexagon Placeholder / Skill Map */}
+                  <div className="relative w-40 h-40 bg-amber/20 flex items-center justify-center" style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}>
+                    <div className="w-24 h-24 bg-amber/40" style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}></div>
+                  </div>
+                  
+                  {/* Labels */}
+                  <div className="absolute top-0 font-bold text-[10px] text-amber uppercase">Creatividad</div>
+                  <div className="absolute bottom-0 font-bold text-[10px] text-blue-400 uppercase">Lógica</div>
+                  <div className="absolute left-0 font-bold text-[10px] text-green-400 uppercase">Social</div>
+                  <div className="absolute right-0 font-bold text-[10px] text-purple-400 uppercase">Análisis</div>
                 </div>
-              )}
+              </div>
 
-              {activeTab === 'courses' && (
+              {/* Countdown Agenda */}
+              <div className="bg-[#1a1814] rounded-3xl p-8 border border-white/5">
+                <h3 className="text-xl font-serif font-bold mb-8 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-amber" /> Próximos Pasos
+                </h3>
                 <div className="space-y-6">
-                  <div className="bg-white/5 rounded-xl p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold text-white">Diseño Gráfico</h3>
-                        <p className="text-gray-400 text-sm">Universidad Di Tella</p>
+                  {agenda.map((item, i) => (
+                    <div key={i} className="flex gap-4 group cursor-pointer">
+                      <div className="flex-shrink-0 w-16 h-16 bg-[#0f0e0c] rounded-2xl flex flex-col items-center justify-center border border-white/10 group-hover:border-amber transition-colors">
+                        <span className="text-amber font-bold text-lg leading-none">{item.time.split(' ')[1]}</span>
+                        <span className="text-[8px] uppercase font-bold text-gray-500">{item.time.split(' ')[2] || 'DÍAS'}</span>
                       </div>
-                      <span className="bg-amber/20 text-amber px-3 py-1 rounded-full text-sm">En progreso</span>
-                    </div>
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-400">Progreso</span>
-                        <span className="text-amber">50%</span>
-                      </div>
-                      <div className="w-full bg-white/10 rounded-full h-2">
-                        <div className="bg-amber h-2 rounded-full" style={{ width: '50%' }} />
+                      <div className="flex-grow pt-1">
+                        <h4 className="font-bold text-sm mb-1 group-hover:text-amber transition-colors">{item.title}</h4>
+                        <p className="text-xs text-gray-500 mb-2">{item.date}</p>
+                        <span className="bg-amber/10 text-amber text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">{item.type}</span>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button className="bg-amber text-white px-4 py-2 rounded-lg text-sm">Descargar Certificado</button>
-                      <button className="bg-white/10 text-white px-4 py-2 rounded-lg text-sm">Mis Notas</button>
-                      <button className="bg-white/10 text-white px-4 py-2 rounded-lg text-sm">Agregar a Google Calendar</button>
-                    </div>
-                  </div>
-
-                  <div className="bg-white/5 rounded-xl p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold text-white">Ingeniería Industrial</h3>
-                        <p className="text-gray-400 text-sm">UADE</p>
-                      </div>
-                      <span className="bg-amber/20 text-amber px-3 py-1 rounded-full text-sm">En progreso</span>
-                    </div>
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-400">Progreso</span>
-                        <span className="text-amber">33%</span>
-                      </div>
-                      <div className="w-full bg-white/10 rounded-full h-2">
-                        <div className="bg-amber h-2 rounded-full" style={{ width: '33%' }} />
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="bg-white/10 text-white px-4 py-2 rounded-lg text-sm">Mis Notas</button>
-                      <button className="bg-white/10 text-white px-4 py-2 rounded-lg text-sm">Agregar a Google Calendar</button>
-                    </div>
-                  </div>
-
-                  <div className="bg-white/5 rounded-xl p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold text-white">Derecho Corporativo</h3>
-                        <p className="text-gray-400 text-sm">UBA</p>
-                      </div>
-                      <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">Completado</span>
-                    </div>
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-400">Progreso</span>
-                        <span className="text-green-400">100%</span>
-                      </div>
-                      <div className="w-full bg-white/10 rounded-full h-2">
-                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }} />
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="bg-amber text-white px-4 py-2 rounded-lg text-sm">Descargar Certificado</button>
-                      <button className="bg-white/10 text-white px-4 py-2 rounded-lg text-sm">Mis Notas</button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              )}
-
-              {activeTab === 'data' && (
-                <div className="space-y-6">
-                  <div className="bg-white/5 rounded-xl p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Información Personal</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-gray-400 text-sm">Nombre</label>
-                        <p className="text-white">Juan</p>
-                      </div>
-                      <div>
-                        <label className="text-gray-400 text-sm">Apellido</label>
-                        <p className="text-white">Smith</p>
-                      </div>
-                      <div>
-                        <label className="text-gray-400 text-sm">Email</label>
-                        <p className="text-white">juan.smith@email.com</p>
-                      </div>
-                      <div>
-                        <label className="text-gray-400 text-sm">DNI</label>
-                        <p className="text-white">12345678</p>
-                      </div>
-                      <div>
-                        <label className="text-gray-400 text-sm">Fecha de Nacimiento</label>
-                        <p className="text-white">15/05/2007</p>
-                      </div>
-                      <div>
-                        <label className="text-gray-400 text-sm">Colegio</label>
-                        <p className="text-white">Colegio Nacional Buenos Aires</p>
-                      </div>
-                      <div>
-                        <label className="text-gray-400 text-sm">Barrio</label>
-                        <p className="text-white">Palermo</p>
-                      </div>
-                    </div>
-                    <button className="btn-primary px-6 py-2">Editar Datos</button>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
+
+            {/* Enrolled Courses with Progress */}
+            <div className="bg-[#1a1814] rounded-3xl p-8 border border-white/5">
+              <h3 className="text-xl font-serif font-bold mb-8">Mis Experiencias</h3>
+              <div className="space-y-8">
+                {[
+                  { name: 'Negocios Digitales', uni: 'UTDT', progress: 65, color: 'bg-amber' },
+                  { name: 'Diseño Global', uni: 'UdeSA', progress: 40, color: 'bg-amber' },
+                  { name: 'Economía & Finanzas', uni: 'UCEMA', progress: 100, color: 'bg-green-500' },
+                ].map((course, i) => (
+                  <div key={i} className="space-y-3">
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <h4 className="font-bold text-lg">{course.name}</h4>
+                        <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">{course.uni}</p>
+                      </div>
+                      <span className="text-sm font-bold text-amber">{course.progress}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-[#0f0e0c] rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full ${course.color} transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(239,159,39,0.3)]`}
+                        style={{ width: `${course.progress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

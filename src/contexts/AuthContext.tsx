@@ -1,13 +1,47 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
 
 interface AuthContextType {
   user: any
   profile: any
   login: (email: string, password: string) => Promise<{ error: any }>
+  mockLogin: (role: 'student' | 'university' | 'professor' | 'admin') => void
   register: (data: RegisterData) => Promise<{ error: any }>
   logout: () => Promise<{ error: any }>
   loading: boolean
+}
+
+const MOCK_PROFILES = {
+  student: {
+    id: 'mock-student-id',
+    email: 'estudiante@demo.com',
+    nombre: 'Agustín',
+    apellido: 'Perez',
+    role: 'student',
+    dni: '12345678',
+    colegio: 'Nacional Buenos Aires',
+    barrio: 'Palermo'
+  },
+  university: {
+    id: 'mock-university-id',
+    email: 'admisiones@ditella.edu',
+    nombre: 'UTDT',
+    apellido: 'Admisiones',
+    role: 'university'
+  },
+  professor: {
+    id: 'mock-professor-id',
+    email: 'j.garcia@uade.edu.ar',
+    nombre: 'Juan',
+    apellido: 'García',
+    role: 'professor'
+  },
+  admin: {
+    id: 'mock-admin-id',
+    email: 'admin@ovofy.com',
+    nombre: 'Admin',
+    apellido: 'Sistema',
+    role: 'admin'
+  }
 }
 
 interface RegisterData {
@@ -29,152 +63,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setUser(session?.user || null)
-        if (session?.user) {
-          await fetchProfile(session.user.id)
-        } else {
-          setProfile(null)
-        }
-        setLoading(false)
-      }
-    )
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null)
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false))
-      } else {
-        setLoading(false)
-      }
-    })
-
-    return () => {
-      authListener?.subscription.unsubscribe()
+    const savedProfile = localStorage.getItem('ovofy_mock_profile')
+    if (savedProfile) {
+      const p = JSON.parse(savedProfile)
+      setUser({ id: p.id, email: p.email })
+      setProfile(p)
     }
+    setLoading(false)
   }, [])
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('timeout')), 3000)
-      )
-      
-      const profilePromise = supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-      
-      const result = await Promise.race([profilePromise, timeoutPromise]) as any
-      
-      if (result.data) {
-        setProfile(result.data)
-      } else if (result.error?.message === 'timeout') {
-        // Use basic profile from user if timeout
-        setProfile({
-          id: userId,
-          email: user?.email,
-          nombre: user?.user_metadata?.nombre || 'Usuario',
-          apellido: user?.user_metadata?.apellido || '',
-          role: 'student'
-        })
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error)
-      setProfile({
-        id: userId,
-        email: user?.email,
-        nombre: 'Usuario',
-        apellido: '',
-        role: 'student'
-      })
-    }
+  const mockLogin = (role: 'student' | 'university' | 'professor' | 'admin') => {
+    const p = MOCK_PROFILES[role]
+    setUser({ id: p.id, email: p.email })
+    setProfile(p)
+    localStorage.setItem('ovofy_mock_profile', JSON.stringify(p))
   }
 
-  const login = async (email: string, password: string) => {
-    try {
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('timeout')), 3000)
-      )
-      
-      const loginPromise = supabase.auth.signInWithPassword({ email, password })
-      
-      const result = await Promise.race([loginPromise, timeoutPromise]) as any
-      
-      if (result.error) {
-        return { error: result.error }
-      }
-      
-      // Redirect immediately, profile fetch happens in background
-      return { error: null }
-    } catch (error: any) {
-      if (error.message === 'timeout') {
-        return { error: new Error('Login timeout') }
-      }
-      return { error }
-    }
+  const login = async (email: string, _password: string) => {
+    // Short-circuit: if email matches a mock, use it, else return error or mock student
+    if (email.includes('admin')) mockLogin('admin')
+    else if (email.includes('university') || email.includes('ditella')) mockLogin('university')
+    else if (email.includes('professor')) mockLogin('professor')
+    else mockLogin('student')
+    
+    return { error: null }
   }
 
   const register = async (data: RegisterData) => {
-    try {
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('timeout')), 3000)
-      )
-      
-      const signUpPromise = supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            nombre: data.nombre,
-            apellido: data.apellido
-          }
-        }
-      })
-      
-      const result = await Promise.race([signUpPromise, timeoutPromise]) as any
-      
-      if (result.error) {
-        return { error: result.error }
-      }
-      
-      if (result.data.user) {
-        // Insert into profiles table with timeout
-        const insertPromise = supabase.from('profiles').insert({
-          id: result.data.user.id,
-          email: data.email,
-          nombre: data.nombre,
-          apellido: data.apellido,
-          dni: data.dni,
-          fecha_nacimiento: data.fecha_nacimiento,
-          colegio: data.colegio,
-          barrio: data.barrio,
-          role: 'student'
-        })
-        
-        await Promise.race([insertPromise, timeoutPromise])
-      }
-      
-      return { error: null }
-    } catch (error: any) {
-      if (error.message === 'timeout') {
-        return { error: new Error('Registration timeout') }
-      }
-      return { error }
+    const p = {
+      id: 'new-user-' + Math.random(),
+      email: data.email,
+      nombre: data.nombre,
+      apellido: data.apellido,
+      role: 'student',
+      dni: data.dni,
+      colegio: data.colegio,
+      barrio: data.barrio
     }
+    setUser({ id: p.id, email: p.email })
+    setProfile(p)
+    localStorage.setItem('ovofy_mock_profile', JSON.stringify(p))
+    return { error: null }
   }
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
-    return { error }
+    localStorage.removeItem('ovofy_mock_profile')
+    return { error: null }
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, profile, login, mockLogin, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   )
