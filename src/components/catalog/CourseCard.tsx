@@ -1,4 +1,5 @@
 import { TrendingUp } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import type { Course } from '../../hooks/useCourses'
 
 interface CourseCardProps {
@@ -6,6 +7,7 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course }: CourseCardProps) {
+  const navigate = useNavigate()
   const cuposOcupados = course.cupos_total - course.cupos_disponibles
   const progressPercent = (cuposOcupados / course.cupos_total) * 100
 
@@ -60,7 +62,10 @@ export function CourseCard({ course }: CourseCardProps) {
             </div>
           </div>
 
-          <button className="w-full py-3 bg-amber hover:bg-amber/90 text-white rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-amber/20 active:scale-[0.98]">
+          <button 
+            onClick={() => navigate(`/curso/${course.id}`)}
+            className="w-full py-3 bg-amber hover:bg-amber/90 text-white rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-amber/20 active:scale-[0.98]"
+          >
             Ver Detalles
           </button>
         </div>

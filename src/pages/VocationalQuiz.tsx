@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { CheckCircle2, ChevronRight } from 'lucide-react'
+import { QuizIntroduction } from '../components/quiz/QuizIntroduction'
 
 export function VocationalQuiz() {
+  const [hasStarted, setHasStarted] = useState(false)
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<number[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -81,29 +84,36 @@ export function VocationalQuiz() {
     setCurrentQuestion(0)
     setAnswers([])
     setShowResults(false)
+    setHasStarted(false)
+  }
+
+  if (!hasStarted) {
+    return <QuizIntroduction onStart={() => setHasStarted(true)} />
   }
 
   return (
-    <div className="min-h-screen bg-warm-cream dark:bg-[#0f0e0c] pt-20">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-warm-cream dark:bg-[#0f0e0c] pt-24 pb-20">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {!showResults ? (
-          <>
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-sm text-amber font-medium">
-                  Pregunta {currentQuestion + 1} de {questions.length}
-                </span>
-                <div className="flex-1 bg-dark-brown/10 dark:bg-white/10 rounded-full h-2 ml-4">
-                  <div
-                    className="bg-amber h-2 rounded-full transition-all"
-                    style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+          <div className="space-y-8 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <span className="text-amber font-bold uppercase tracking-widest text-xs">
+                Pregunta {currentQuestion + 1} de {questions.length}
+              </span>
+              <div className="flex gap-1">
+                {questions.map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`h-1.5 w-6 rounded-full transition-all duration-500 ${
+                      i <= currentQuestion ? 'bg-amber' : 'bg-dark-brown/10 dark:bg-white/10'
+                    }`} 
                   />
-                </div>
+                ))}
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#1a1814] rounded-2xl shadow-lg p-8">
-              <h2 className="text-3xl font-serif font-semibold text-dark-brown dark:text-[#f5f0e8] mb-8">
+            <div className="bg-white dark:bg-[#1a1814] rounded-[2.5rem] p-10 md:p-12 shadow-xl border border-dark-brown/5 dark:border-white/5">
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-dark-brown dark:text-white mb-10 leading-tight">
                 {questions[currentQuestion].question}
               </h2>
 
@@ -112,46 +122,57 @@ export function VocationalQuiz() {
                   <button
                     key={index}
                     onClick={() => handleAnswer(index)}
-                    className="px-6 py-6 bg-warm-cream dark:bg-[#0f0e0c] border-2 border-dark-brown/20 dark:border-[#2a2620] rounded-xl text-dark-brown dark:text-[#f5f0e8] hover:border-amber transition-all text-left hover:shadow-md"
+                    className="group px-8 py-6 bg-warm-cream/50 dark:bg-[#0f0e0c] border-2 border-transparent rounded-2xl text-dark-brown dark:text-white hover:border-amber hover:bg-white dark:hover:bg-[#1a1814] transition-all text-left flex items-center justify-between"
                   >
-                    {option}
+                    <span className="text-lg font-medium">{option}</span>
+                    <ChevronRight className="w-5 h-5 text-amber opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0" />
                   </button>
                 ))}
               </div>
             </div>
-          </>
+          </div>
         ) : (
-          <div className="bg-white dark:bg-[#1a1814] rounded-2xl shadow-lg p-10 text-center">
-            <h2 className="text-4xl font-serif font-bold text-dark-brown dark:text-[#f5f0e8] mb-4">
-              ¡Test Completado!
-            </h2>
-            <p className="text-lg text-dark-brown/80 dark:text-gray-300 mb-10">
-              Basado en tus respuestas, estas son tus compatibilidades:
-            </p>
-            <div className="grid grid-cols-1 gap-6 mb-10">
-              {careerRecommendations.map((rec, index) => (
-                <div key={index} className="bg-warm-cream dark:bg-[#0f0e0c] rounded-2xl p-6 border border-dark-brown/10 dark:border-white/10 flex items-center justify-between text-left hover:border-amber transition-all">
-                  <div>
-                    <h3 className="text-xl font-bold text-dark-brown dark:text-white mb-1">{rec.title}</h3>
-                    <p className="text-sm text-dark-brown/70 dark:text-gray-400">{rec.description}</p>
-                  </div>
-                  <div className="ml-6 flex flex-col items-center">
-                    <span className="text-3xl font-serif font-bold text-amber">{rec.match}</span>
-                    <span className="text-[10px] uppercase tracking-wider text-dark-brown/40 dark:text-gray-500">Match</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-4">
-              <button
-                onClick={handleRestart}
-                className="btn-primary px-8 py-3"
-              >
-                Volver a hacer el test
-              </button>
-              <p className="text-sm text-dark-brown/60 dark:text-gray-400">
-                Recordá que este test es solo una guía. Te recomendamos probar cursos de diferentes áreas para descubrir tu verdadera vocación.
+          <div className="animate-slide-up">
+            <div className="bg-white dark:bg-[#1a1814] rounded-[3rem] p-10 md:p-16 shadow-2xl text-center border border-dark-brown/5 dark:border-white/5">
+              <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-green-500" />
+              </div>
+              <h2 className="text-4xl font-serif font-bold text-dark-brown dark:text-white mb-4">
+                ¡Análisis Completado!
+              </h2>
+              <p className="text-lg text-dark-brown/60 dark:text-gray-400 mb-12">
+                Basado en tu perfil cognitivo, estas son tus mejores coincidencias:
               </p>
+              
+              <div className="grid grid-cols-1 gap-6 mb-12">
+                {careerRecommendations.map((rec, index) => (
+                  <div key={index} className="bg-warm-cream/50 dark:bg-[#0f0e0c] rounded-3xl p-8 border border-dark-brown/5 dark:border-white/5 flex items-center justify-between text-left hover:border-amber transition-all group">
+                    <div className="max-w-[70%]">
+                      <h3 className="text-xl font-bold text-dark-brown dark:text-white mb-2">{rec.title}</h3>
+                      <p className="text-sm text-dark-brown/60 dark:text-gray-400 leading-relaxed">{rec.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-4xl font-serif font-bold text-amber mb-1">{rec.match}</div>
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-dark-brown/30 dark:text-gray-500">Match</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={handleRestart}
+                  className="px-10 py-4 bg-dark-brown dark:bg-white dark:text-dark-brown text-white rounded-2xl font-bold transition-all hover:opacity-90"
+                >
+                  Reiniciar Test
+                </button>
+                <button
+                  onClick={() => window.location.href = '/catalogo'}
+                  className="px-10 py-4 bg-amber text-white rounded-2xl font-bold shadow-lg shadow-amber/20 transition-all hover:-translate-y-1"
+                >
+                  Explorar Carreras
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -23,9 +23,12 @@ export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) 
             className="bg-white dark:bg-[#1a1814] rounded-xl p-6 shadow-md border border-dark-brown/10 dark:border-[#2a2620]"
           >
             <div className="flex items-center gap-1 mb-3">
-              {[...Array(testimonial.rating)].map((_, i) => (
+              {[...Array(Math.floor(testimonial.rating))].map((_, i) => (
                 <span key={i} className="text-amber">★</span>
               ))}
+              {testimonial.rating % 1 !== 0 && (
+                <span className="text-amber/50">★</span>
+              )}
             </div>
             <p className="text-dark-brown/80 dark:text-gray-300 mb-4 italic">
               "{testimonial.text}"

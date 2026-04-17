@@ -1,43 +1,67 @@
-import { useParams } from 'react-router-dom'
-import { useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { CourseHero } from '../components/course/CourseHero'
 import { ActivitiesList } from '../components/course/ActivitiesList'
 import { ScheduleSection } from '../components/course/ScheduleSection'
 import { TestimonialsSection } from '../components/course/TestimonialsSection'
 import { EnrollmentSection } from '../components/course/EnrollmentSection'
+import { useCourses } from '../hooks/useCourses'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 
 export function CourseDetail() {
-  const { id: _id } = useParams()
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { courses, loading } = useCourses()
   const [isEnrolled, setIsEnrolled] = useState(false)
+  const [course, setCourse] = useState<any>(null)
 
-  const courseData = {
-    title: "Diseño Gráfico",
-    university: "Universidad Di Tella",
-    career: "Diseño",
-    image: "https://images.unsplash.com/photo-1562774053-701939374585?w=1200&h=400&fit=crop",
-    enrolled: 7,
-    totalSpots: 20
+  useEffect(() => {
+    if (!loading && courses.length > 0) {
+      const found = courses.find(c => c.id === id)
+      if (found) {
+        setCourse(found)
+      }
+    }
+  }, [id, courses, loading])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-warm-cream dark:bg-[#0f0e0c]">
+        <Loader2 className="w-10 h-10 text-amber animate-spin" />
+      </div>
+    )
+  }
+
+  if (!course) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-warm-cream dark:bg-[#0f0e0c] p-4 text-center">
+        <h2 className="text-3xl font-serif font-bold text-dark-brown dark:text-white mb-4">Curso no encontrado</h2>
+        <button onClick={() => navigate('/catalogo')} className="btn-primary flex items-center gap-2">
+          <ArrowLeft className="w-5 h-5" /> Volver al Catálogo
+        </button>
+      </div>
+    )
   }
 
   const activities = [
-    { id: 1, title: "Simulación de 1er año", description: "Experiencia real de las materias del primer año de la carrera", duration: "2 horas" },
-    { id: 2, title: "Taller de branding", description: "Crea tu propia marca desde cero", duration: "3 horas" },
-    { id: 3, title: "Proyecto final", description: "Desarrolla un proyecto completo de diseño", duration: "4 horas" }
+    { id: 1, title: `Simulación de 1er año - ${course.nombre}`, description: "Experiencia real de las materias del primer año de la carrera", duration: "2 horas" },
+    { id: 2, title: "Taller Práctico", description: "Resolvé un caso real diseñado por directores de carrera", duration: "3 horas" },
+    { id: 3, title: "Networking con Graduados", description: "Charla abierta con profesionales del área", duration: "2 horas" }
   ]
 
   const schedule = [
-    { day: "Encuentro 1", time: "Sábado 10:00", topic: "Simulación 1er año - Diseño Básico" },
-    { day: "Encuentro 2", time: "Sábado 10:00", topic: "Simulación 2do año - Tipografía" },
-    { day: "Encuentro 3", time: "Sábado 10:00", topic: "Simulación 3er año - Branding" },
-    { day: "Encuentro 4", time: "Sábado 10:00", topic: "Simulación 4to año - Portfolio" },
-    { day: "Encuentro 5", time: "Sábado 10:00", topic: "Mercado laboral y herramientas" },
-    { day: "Encuentro 6", time: "Sábado 10:00", topic: "Tour universitario + charla con 5 graduados" }
+    { day: "Encuentro 1", time: "Sábado 10:00", topic: `Simulación 1er año - ${course.nombre} Básico` },
+    { day: "Encuentro 2", time: "Sábado 10:00", topic: "Simulación 2do año - Temas Avanzados" },
+    { day: "Encuentro 3", time: "Sábado 10:00", topic: "Taller de Herramientas Digitales" },
+    { day: "Encuentro 4", time: "Sábado 10:00", topic: "Caso de Estudio Real" },
+    { day: "Encuentro 5", time: "Sábado 10:00", topic: "Charla: Salida Laboral y Futuro" },
+    { day: "Encuentro 6", time: "Sábado 10:00", topic: "Tour por el Campus + Cierre" }
   ]
 
   const testimonials = [
-    { id: 1, name: "María González", course: "Diseño Gráfico", text: "Este curso me ayudó a confirmar que el diseño era mi pasión", rating: 5 },
-    { id: 2, name: "Lucas Fernández", course: "Diseño Gráfico", text: "La mejor forma de saber si esta carrera es para vos", rating: 5 },
-    { id: 3, name: "Sofía Martínez", course: "Diseño Gráfico", text: "Las simulaciones son muy realistas y útiles", rating: 5 }
+    { id: 1, name: "Agustina R.", course: course.nombre, text: `Este curso de ${course.universities.nombre} me cambió la perspectiva totalmente.`, rating: 5 },
+    { id: 2, name: "Federico M.", course: course.nombre, text: "La mejor inversión antes de empezar la facultad.", rating: 5 },
+    { id: 3, name: "Santi K.", course: course.nombre, text: "Muy práctico, nada de teoría aburrida.", rating: 4.8 }
   ]
 
   const handleEnroll = () => {
@@ -47,21 +71,21 @@ export function CourseDetail() {
   return (
     <div className="min-h-screen bg-warm-cream dark:bg-[#0f0e0c] pt-20">
       <CourseHero
-        title={courseData.title}
-        university={courseData.university}
-        career={courseData.career}
-        image={courseData.image}
+        title={course.nombre}
+        university={course.universities.nombre}
+        career={course.carrera}
+        image={course.image_url}
       />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
         <section>
-          <h2 className="text-2xl font-serif font-semibold text-dark-brown dark:text-[#f5f0e8] mb-6">
-            Lo que vas a hacer
+          <h2 className="text-3xl font-serif font-bold text-dark-brown dark:text-white mb-8 border-l-4 border-amber pl-6">
+            Lo que vas a <span className="text-amber italic">experimentar</span>
           </h2>
           <ActivitiesList activities={activities} />
         </section>
 
-        <section>
+        <section className="bg-white dark:bg-[#1a1814] rounded-[2.5rem] p-10 shadow-sm border border-dark-brown/5 dark:border-white/5">
           <ScheduleSection schedule={schedule} />
         </section>
 
@@ -70,22 +94,26 @@ export function CourseDetail() {
         </section>
 
         <section>
-          <div className="bg-white dark:bg-[#1a1814] rounded-2xl p-8 shadow-lg border border-dark-brown/10 dark:border-[#2a2620]">
-            <h3 className="text-2xl font-serif font-semibold text-dark-brown dark:text-[#f5f0e8] mb-4">
-              Cupos disponibles
+          <div className="bg-white dark:bg-[#1a1814] rounded-[2.5rem] p-10 md:p-16 shadow-2xl border border-amber/10 relative overflow-hidden text-center">
+            <div className="absolute top-0 left-0 w-full h-2 bg-amber"></div>
+            <h3 className="text-3xl font-serif font-bold text-dark-brown dark:text-white mb-6">
+              Reservá tu lugar hoy
             </h3>
-            <div className="mb-4">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-dark-brown/80 dark:text-gray-300">{courseData.enrolled} de {courseData.totalSpots} cupos</span>
+            <div className="max-w-md mx-auto mb-10">
+              <div className="flex justify-between items-end mb-3">
+                <span className="text-sm font-bold text-dark-brown/40 dark:text-gray-500 uppercase tracking-widest">Cupos Limitados</span>
+                <span className="text-lg font-bold text-amber">{course.cupos_disponibles} de {course.cupos_total}</span>
               </div>
-              <div className="w-full bg-dark-brown/10 dark:bg-white/10 rounded-full h-3">
+              <div className="w-full bg-dark-brown/5 dark:bg-white/5 rounded-full h-4 overflow-hidden p-1 border border-dark-brown/10 dark:border-white/10">
                 <div
-                  className="bg-amber h-3 rounded-full transition-all"
-                  style={{ width: `${(courseData.enrolled / courseData.totalSpots) * 100}%` }}
+                  className="bg-amber h-full rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: `${(course.cupos_disponibles / course.cupos_total) * 100}%` }}
                 />
               </div>
             </div>
-            <EnrollmentSection onEnroll={handleEnroll} isEnrolled={isEnrolled} />
+            <div className="flex justify-center">
+              <EnrollmentSection onEnroll={handleEnroll} isEnrolled={isEnrolled} />
+            </div>
           </div>
         </section>
       </div>

@@ -31,15 +31,15 @@ export function StudentDashboard() {
                     {profile?.nombre?.[0]}{profile?.apellido?.[0]}
                   </span>
                 </div>
-                <h3 className="text-2xl font-serif font-bold mb-1">{profile?.nombre} {profile?.apellido}</h3>
+                <h3 className="text-2xl font-serif font-bold mb-1 text-white">{profile?.nombre} {profile?.apellido}</h3>
                 <p className="text-amber text-sm font-bold uppercase tracking-widest mb-6">Nivel 4 Explorador</p>
                 
                 <div className="space-y-3 text-left">
-                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                  <div className="flex items-center gap-3 text-sm text-gray-300">
                     <BookOpen className="w-4 h-4 text-amber" />
                     <span>{profile?.colegio}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                  <div className="flex items-center gap-3 text-sm text-gray-300">
                     <User className="w-4 h-4 text-amber" />
                     <span>{profile?.barrio}</span>
                   </div>
@@ -49,12 +49,12 @@ export function StudentDashboard() {
 
             {/* Medals Grid */}
             <div className="bg-[#1a1814] rounded-3xl p-6 border border-white/5">
-              <h4 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-4">Medallas Ganadas</h4>
+              <h4 className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-4">Medallas Ganadas</h4>
               <div className="grid grid-cols-2 gap-3">
                 {medals.map((medal, i) => (
                   <div key={i} className={`${medal.bg} rounded-2xl p-4 flex flex-col items-center gap-2 group hover:scale-105 transition-transform cursor-pointer`}>
                     <medal.icon className={`w-8 h-8 ${medal.color}`} />
-                    <span className="text-[10px] font-bold uppercase text-white/70">{medal.label}</span>
+                    <span className="text-[10px] font-bold uppercase text-white">{medal.label}</span>
                   </div>
                 ))}
               </div>
@@ -76,8 +76,8 @@ export function StudentDashboard() {
                     <stat.icon className="w-6 h-6 text-amber" />
                   </div>
                   <div>
-                    <div className="text-2xl font-serif font-bold">{stat.value}</div>
-                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">{stat.label}</div>
+                    <div className="text-2xl font-serif font-bold text-white">{stat.value}</div>
+                    <div className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">{stat.label}</div>
                   </div>
                 </div>
               ))}
@@ -88,7 +88,7 @@ export function StudentDashboard() {
               
               {/* Skill Map - Hexagonal representation */}
               <div className="bg-[#1a1814] rounded-3xl p-8 border border-white/5">
-                <h3 className="text-xl font-serif font-bold mb-8 flex items-center gap-2">
+                <h3 className="text-xl font-serif font-bold mb-8 flex items-center gap-2 text-white">
                   <Hexagon className="w-5 h-5 text-amber" /> Mi Mapa de Skills
                 </h3>
                 <div className="relative h-64 flex items-center justify-center">

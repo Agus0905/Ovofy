@@ -32,7 +32,7 @@ function AppRoutes() {
   }
 
   return (
-    <div className="min-h-screen bg-warm-cream dark:bg-[#0f0e0c] dark:text-[#f5f0e8] transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-warm-cream dark:bg-[#0f0e0c] dark:text-[#f5f0e8] transition-colors duration-300">
       {/* Global Progress Bar */}
       {profile?.role === 'student' && (
         <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-[#1a1814] z-50">
@@ -42,8 +42,8 @@ function AppRoutes() {
           />
         </div>
       )}
-      <Navbar />
-      <main>
+      <Navbar onOpenAuth={openAuthModal} />
+      <main className="flex-grow">
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<LandingPage openAuthModal={openAuthModal} />} />

@@ -67,7 +67,7 @@
 
   .btn-outline {
     background-color: transparent;
-    color: #1a1208;
+    color: var(--text);
     border: 1px solid rgba(26, 18, 8, 0.2);
     padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
@@ -75,8 +75,17 @@
     transition: all 0.2s;
   }
 
+  .dark .btn-outline {
+    border-color: rgba(245, 240, 232, 0.2);
+    color: #f5f0e8;
+  }
+
   .btn-outline:hover {
     background-color: rgba(26, 18, 8, 0.05);
+  }
+
+  .dark .btn-outline:hover {
+    background-color: rgba(245, 240, 232, 0.05);
   }
 
   .card {
