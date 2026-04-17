@@ -1,5 +1,4 @@
-import React from 'react';
-import { Sparkles, ArrowRight, CheckCircle2, Timer } from 'lucide-react';
+import { Sparkles, ArrowRight, Timer } from 'lucide-react';
 
 interface QuizIntroProps {
   onStart: () => void;

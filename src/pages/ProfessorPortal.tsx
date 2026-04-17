@@ -11,11 +11,6 @@ export function ProfessorPortal() {
     { id: 4, name: 'Tomás Rodríguez', attendance: 78, grade: 7 }
   ]
 
-  const schedule = [
-    { id: 1, course: 'Diseño Gráfico', day: 'Sábado', time: '10:00 AM', location: 'Aula 3' },
-    { id: 2, course: 'Ingeniería Industrial', day: 'Miércoles', time: '4:00 PM', location: 'Laboratorio 2' }
-  ]
-
   const tabs = [
     { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
     { id: 'attendance', label: 'Asistencia', icon: Users },

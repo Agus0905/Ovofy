@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Search, SlidersHorizontal, TrendingUp } from 'lucide-react'
 import { useCourses } from '../hooks/useCourses'
 import { CourseCard } from '../components/catalog/CourseCard'
+import { CourseCardSkeleton } from '../components/ui/Skeleton'
 
 const universities = ["Todas", "UTDT", "UCEMA", "ITBA", "UdeSA"]
 const categories = ["Todas", "Negocios", "Economía", "Tecnología", "Diseño"]
@@ -99,7 +100,7 @@ export function CourseCatalog() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="animate-pulse bg-white dark:bg-[#1a1814] rounded-2xl h-96 shadow-sm border border-dark-brown/5 dark:border-white/5" />
+              <CourseCardSkeleton key={i} />
             ))}
           </div>
         ) : filteredCourses.length > 0 ? (

@@ -1,14 +1,16 @@
-import { Calendar, BookOpen, User, Hexagon, Trophy, Star, Target, Zap, Clock } from 'lucide-react'
+import { Calendar, BookOpen, User, Trophy, Star, Target, Zap, Clock, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 export function StudentDashboard() {
   const { profile } = useAuth()
 
+  const profileCompleteness = 75 // Mock calculation
+
   const medals = [
-    { icon: Trophy, color: 'text-amber', bg: 'bg-amber/10', label: 'Primer Paso' },
-    { icon: Star, color: 'text-blue-400', bg: 'bg-blue-400/10', label: 'Explorador' },
-    { icon: Target, color: 'text-green-400', bg: 'bg-green-400/10', label: 'Decidido' },
-    { icon: Zap, color: 'text-purple-400', bg: 'bg-purple-400/10', label: 'Rápido' },
+    { icon: Trophy, color: 'text-amber', bg: 'bg-amber/10', label: 'Pionero', desc: 'Completaste el Test Vocacional' },
+    { icon: Star, color: 'text-blue-400', bg: 'bg-blue-400/10', label: 'Analista', desc: 'Comparaste 3 universidades' },
+    { icon: Target, color: 'text-green-400', bg: 'bg-green-400/10', label: 'Enrolado', desc: 'Te inscribiste a tu primer curso' },
+    { icon: Zap, color: 'text-purple-400', bg: 'bg-purple-400/10', label: 'Estratega', desc: 'Definiste tu plan de carrera' },
   ]
 
   const agenda = [
@@ -47,7 +49,7 @@ export function StudentDashboard() {
               </div>
             </div>
 
-            {/* Medals Grid */}
+            {/* Medals Grid (Quick View) */}
             <div className="bg-[#1a1814] rounded-3xl p-6 border border-white/5">
               <h4 className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-4">Medallas Ganadas</h4>
               <div className="grid grid-cols-2 gap-3">
@@ -63,6 +65,30 @@ export function StudentDashboard() {
 
           {/* Main Content Area */}
           <div className="lg:col-span-9 space-y-8">
+            {/* Profile Completeness Bar */}
+            <div className="bg-[#1a1814] p-8 rounded-3xl border border-white/5 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Trophy className="w-24 h-24 text-amber" />
+              </div>
+              <div className="relative z-10">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-serif font-bold text-white flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-amber animate-pulse" /> Completitud del Perfil
+                  </h3>
+                  <span className="text-2xl font-serif font-bold text-amber">{profileCompleteness}%</span>
+                </div>
+                <div className="w-full h-4 bg-[#0f0e0c] rounded-full overflow-hidden border border-white/5">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber/50 to-amber transition-all duration-1500 ease-out shadow-[0_0_20px_#EF9F27]"
+                    style={{ width: `${profileCompleteness}%` }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-400 mt-4 font-medium italic">
+                  "¡Casi listo! Completá tu información académica para desbloquear recomendaciones personalizadas por IA."
+                </p>
+              </div>
+            </div>
+
             {/* Header Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
@@ -86,26 +112,26 @@ export function StudentDashboard() {
             {/* Dashboard Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               
-              {/* Skill Map - Hexagonal representation */}
+              {/* Medals Details */}
               <div className="bg-[#1a1814] rounded-3xl p-8 border border-white/5">
                 <h3 className="text-xl font-serif font-bold mb-8 flex items-center gap-2 text-white">
-                  <Hexagon className="w-5 h-5 text-amber" /> Mi Mapa de Skills
+                  <Star className="w-5 h-5 text-amber" /> Mis Logros Académicos
                 </h3>
-                <div className="relative h-64 flex items-center justify-center">
-                  <div className="absolute inset-0 border-[1px] border-white/5 rounded-full scale-100"></div>
-                  <div className="absolute inset-0 border-[1px] border-white/5 rounded-full scale-75"></div>
-                  <div className="absolute inset-0 border-[1px] border-white/5 rounded-full scale-50"></div>
-                  
-                  {/* Hexagon Placeholder / Skill Map */}
-                  <div className="relative w-40 h-40 bg-amber/20 flex items-center justify-center" style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}>
-                    <div className="w-24 h-24 bg-amber/40" style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}></div>
-                  </div>
-                  
-                  {/* Labels */}
-                  <div className="absolute top-0 font-bold text-[10px] text-amber uppercase">Creatividad</div>
-                  <div className="absolute bottom-0 font-bold text-[10px] text-blue-400 uppercase">Lógica</div>
-                  <div className="absolute left-0 font-bold text-[10px] text-green-400 uppercase">Social</div>
-                  <div className="absolute right-0 font-bold text-[10px] text-purple-400 uppercase">Análisis</div>
+                <div className="space-y-4">
+                  {medals.map((medal, i) => (
+                    <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+                      <div className={`${medal.bg} p-3 rounded-xl group-hover:scale-110 transition-transform`}>
+                        <medal.icon className={`w-6 h-6 ${medal.color}`} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm text-white">{medal.label}</p>
+                        <p className="text-xs text-gray-500">{medal.desc}</p>
+                      </div>
+                      <div className="ml-auto">
+                        <CheckCircle2 className="w-5 h-5 text-amber opacity-40" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

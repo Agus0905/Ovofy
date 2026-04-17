@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { AuthProvider } from './contexts/AuthContext'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
@@ -8,6 +9,7 @@ import { CourseCatalog } from './pages/CourseCatalog'
 import { CourseDetail } from './pages/CourseDetail'
 import { UniversityComparator } from './pages/UniversityComparator'
 import { VocationalQuiz } from './pages/VocationalQuiz'
+import { MentorshipPortal } from './pages/MentorshipPortal'
 import { StudentDashboard } from './pages/StudentDashboard'
 import { UniversityPortal } from './pages/UniversityPortal'
 import { ProfessorPortal } from './pages/ProfessorPortal'
@@ -22,6 +24,7 @@ function AppRoutes() {
   const { profile } = useAuth()
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
+  const location = useLocation()
 
   // Mock progress calculation for demo
   const progress = profile?.role === 'student' ? 65 : 0
@@ -44,67 +47,78 @@ function AppRoutes() {
       )}
       <Navbar onOpenAuth={openAuthModal} />
       <main className="flex-grow">
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage openAuthModal={openAuthModal} />} />
-          <Route path="/catalogo" element={<CourseCatalog />} />
-          <Route path="/como-funciona" element={<HowItWorks />} />
-          <Route path="/curso/:id" element={<CourseDetail />} />
-          <Route path="/comparar" element={<UniversityComparator />} />
-          <Route path="/quiz" element={<VocationalQuiz />} />
-          <Route path="/perfil/:userId" element={<PublicProfile />} />
-          
-          {/* Protected routes */}
-          <Route 
-            path="/perfil" 
-            element={
-              <ProtectedRoute requiredRole="student">
-                <StudentDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/universidad" 
-            element={
-              <ProtectedRoute requiredRole="university">
-                <UniversityPortal />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/profesor" 
-            element={
-              <ProtectedRoute requiredRole="professor">
-                <ProfessorPortal />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminPanel />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Redirect based on role */}
-          <Route 
-            path="/dashboard" 
-            element={
-              profile ? (
-                profile.role === 'student' ? <Navigate to="/perfil" /> :
-                profile.role === 'university' ? <Navigate to="/universidad" /> :
-                profile.role === 'professor' ? <Navigate to="/profesor" /> :
-                profile.role === 'admin' ? <Navigate to="/admin" /> :
-                <Navigate to="/" />
-              ) : <Navigate to="/" />
-            } 
-          />
-          
-          {/* 404 */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <Routes location={location} key={location.pathname}>
+              {/* Public routes */}
+              <Route path="/" element={<LandingPage openAuthModal={openAuthModal} />} />
+              <Route path="/catalogo" element={<CourseCatalog />} />
+              <Route path="/como-funciona" element={<HowItWorks />} />
+              <Route path="/curso/:id" element={<CourseDetail />} />
+              <Route path="/comparar" element={<UniversityComparator />} />
+              <Route path="/quiz" element={<VocationalQuiz />} />
+              <Route path="/mentorias" element={<MentorshipPortal />} />
+              <Route path="/perfil/:userId" element={<PublicProfile />} />
+              
+              {/* Protected routes */}
+              <Route 
+                path="/perfil" 
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/universidad" 
+                element={
+                  <ProtectedRoute requiredRole="university">
+                    <UniversityPortal />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/profesor" 
+                element={
+                  <ProtectedRoute requiredRole="professor">
+                    <ProfessorPortal />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminPanel />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Redirect based on role */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  profile ? (
+                    profile.role === 'student' ? <Navigate to="/perfil" /> :
+                    profile.role === 'university' ? <Navigate to="/universidad" /> :
+                    profile.role === 'professor' ? <Navigate to="/profesor" /> :
+                    profile.role === 'admin' ? <Navigate to="/admin" /> :
+                    <Navigate to="/" />
+                  ) : <Navigate to="/" />
+                } 
+              />
+              
+              {/* 404 */}
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </motion.div>
+        </AnimatePresence>
       </main>
       <Footer />
       <AuthModal

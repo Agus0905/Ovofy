@@ -48,13 +48,6 @@ export function UserMenu() {
             >
               Mi Perfil
             </Link>
-            <Link
-              to="/perfil"
-              onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 text-sm text-dark-brown dark:text-[#f5f0e8] hover:bg-dark-brown/5 dark:hover:bg-white/5"
-            >
-              Mi Dashboard
-            </Link>
             <button
               onClick={handleLogout}
               className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
