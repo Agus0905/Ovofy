@@ -1,15 +1,18 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { GraduationCap, UserCog, ShieldCheck, Loader2 } from 'lucide-react'
 
 interface LoginFormProps {
   onSuccess: () => void
 }
+
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [demoLoading, setDemoLoading] = useState<string | null>(null)
   const { login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
 
@@ -25,7 +28,24 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       setLoading(false)
     } else {
       onSuccess()
-      navigate('/perfil')
+      navigate('/dashboard')
+    }
+  }
+
+  const handleDemoLogin = async (role: 'university' | 'professor' | 'admin') => {
+    setError('')
+    setDemoLoading(role)
+    const demoEmail = `demo-${role}@ovofy.com`
+    const demoPassword = 'demo123456'
+
+    const { error } = await login(demoEmail, demoPassword)
+
+    if (error) {
+      setError(`Error en demo: ${error.message}`)
+      setDemoLoading(null)
+    } else {
+      onSuccess()
+      navigate('/dashboard')
     }
   }
 
@@ -43,15 +63,42 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-serif font-bold text-dark-brown dark:text-[#f5f0e8] mb-6 text-center">
-        Iniciar Sesión
-      </h2>
+    <div className="space-y-6">
+      {/* Demo Access Section */}
+      <div className="bg-amber/5 border border-amber/10 rounded-2xl p-4 space-y-3">
+        <p className="text-[10px] uppercase tracking-widest font-black text-amber text-center mb-1">Acceso Rápido (Demo)</p>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => handleDemoLogin('university')}
+            disabled={!!demoLoading}
+            className="flex flex-col items-center gap-1 p-2 rounded-xl bg-white dark:bg-white/5 border border-dark-brown/5 hover:border-amber/50 transition-all group"
+          >
+            {demoLoading === 'university' ? <Loader2 className="w-4 h-4 animate-spin text-amber" /> : <GraduationCap className="w-4 h-4 text-dark-brown/40 group-hover:text-amber" />}
+            <span className="text-[9px] font-bold text-dark-brown/60 dark:text-gray-400">Universidad</span>
+          </button>
+          <button
+            onClick={() => handleDemoLogin('professor')}
+            disabled={!!demoLoading}
+            className="flex flex-col items-center gap-1 p-2 rounded-xl bg-white dark:bg-white/5 border border-dark-brown/5 hover:border-amber/50 transition-all group"
+          >
+            {demoLoading === 'professor' ? <Loader2 className="w-4 h-4 animate-spin text-amber" /> : <UserCog className="w-4 h-4 text-dark-brown/40 group-hover:text-amber" />}
+            <span className="text-[9px] font-bold text-dark-brown/60 dark:text-gray-400">Profesor</span>
+          </button>
+          <button
+            onClick={() => handleDemoLogin('admin')}
+            disabled={!!demoLoading}
+            className="flex flex-col items-center gap-1 p-2 rounded-xl bg-white dark:bg-white/5 border border-dark-brown/5 hover:border-amber/50 transition-all group"
+          >
+            {demoLoading === 'admin' ? <Loader2 className="w-4 h-4 animate-spin text-amber" /> : <ShieldCheck className="w-4 h-4 text-dark-brown/40 group-hover:text-amber" />}
+            <span className="text-[9px] font-bold text-dark-brown/60 dark:text-gray-400">Admin</span>
+          </button>
+        </div>
+      </div>
 
       <div className="space-y-4">
         <button
           onClick={handleGoogleLogin}
-          disabled={loading}
+          disabled={loading || !!demoLoading}
           className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-xl text-dark-brown dark:text-[#f5f0e8] font-bold hover:bg-dark-brown/5 dark:hover:bg-white/5 transition-all shadow-sm group"
         >
           <svg width="20" height="20" viewBox="0 0 24 24">
@@ -74,46 +121,44 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-...
-
         <div>
-          <label className="block text-sm font-medium text-dark-brown dark:text-[#f5f0e8] mb-2">
-            Email
+          <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">
+            Correo Electrónico
           </label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8] focus:outline-none focus:ring-2 focus:ring-amber"
+            className="w-full px-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
             placeholder="tu@email.com"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-dark-brown dark:text-[#f5f0e8] mb-2">
+          <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">
             Contraseña
           </label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8] focus:outline-none focus:ring-2 focus:ring-amber"
+            className="w-full px-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
             placeholder="••••••••"
             required
           />
         </div>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+          <div className="bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-xs font-bold">
             {error}
           </div>
         )}
 
         <button
           type="submit"
-          disabled={loading}
-          className="btn-primary w-full py-3"
+          disabled={loading || !!demoLoading}
+          className="w-full py-4 bg-amber text-white rounded-xl font-bold shadow-lg shadow-amber/20 hover:bg-amber/90 transition-all flex items-center justify-center disabled:opacity-50"
         >
           {loading ? 'Iniciando...' : 'Iniciar Sesión'}
         </button>

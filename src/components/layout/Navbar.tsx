@@ -71,7 +71,6 @@ export function Navbar({ onOpenAuth }: { onOpenAuth: (mode: 'login' | 'register'
     { name: 'Catálogo', path: '/catalogo' },
     { name: 'Comparador', path: '/comparar' },
     { name: 'Quiz', path: '/quiz' },
-    { name: 'Mentorías', path: '/mentorias' },
     { name: 'Cómo Funciona', path: '/como-funciona' }
   ]
 

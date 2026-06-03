@@ -1,10 +1,66 @@
-import { Calendar, BookOpen, User, Trophy, Star, Target, Zap, Clock, CheckCircle2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Calendar, BookOpen, User, Trophy, Star, Target, Zap, Clock, CheckCircle2, Loader2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabase'
 
 export function StudentDashboard() {
-  const { profile } = useAuth()
+  const { profile, user } = useAuth()
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const profileCompleteness = 75 // Mock calculation
+  useEffect(() => {
+    async function fetchDashboardData() {
+      if (!user) return
+      
+      try {
+        setLoading(true)
+        
+        // Use a 3-second timeout for the database fetch
+        const fetchPromise = supabase
+          .from('enrollments')
+          .select(`
+            *,
+            courses (
+              id,
+              nombre,
+              universities (
+                nombre
+              )
+            )
+          `)
+          .eq('student_id', user.id)
+
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Dashboard sync timeout')), 3000)
+        )
+
+        const { data, error } = await Promise.race([
+          fetchPromise,
+          timeoutPromise
+        ]) as any
+        
+        if (error) throw error
+        setEnrolledCourses(data || [])
+      } catch (err: any) {
+        console.warn('StudentDashboard: Sync failed or timed out.', err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [user])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0f0e0c]">
+        <Loader2 className="w-10 h-10 text-amber animate-spin" />
+      </div>
+    )
+  }
+
+  const profileCompleteness = profile?.dni && profile?.fecha_nacimiento ? 100 : 75
 
   const medals = [
     { icon: Trophy, color: 'text-amber', bg: 'bg-amber/10', label: 'Pionero', desc: 'Completaste el Test Vocacional' },
@@ -14,8 +70,7 @@ export function StudentDashboard() {
   ]
 
   const agenda = [
-    { title: 'Clase Magistral: Negocios', time: 'En 2 días', date: 'Sábado 10:00', type: 'Live' },
-    { title: 'Taller de Diseño Global', time: 'En 5 días', date: 'Martes 18:30', type: 'Workshop' },
+    { title: 'Próximo Encuentro', time: 'En 3 días', date: 'Sábado 10:00', type: 'Live' },
   ]
 
   return (
@@ -92,10 +147,10 @@ export function StudentDashboard() {
             {/* Header Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Cursos', value: '03', icon: BookOpen },
-                { label: 'Encuentros', value: '12', icon: Calendar },
-                { label: 'Proyectos', value: '05', icon: Target },
-                { label: 'Horas', value: '24', icon: Clock },
+                { label: 'Cursos', value: enrolledCourses.length.toString().padStart(2, '0'), icon: BookOpen },
+                { label: 'Encuentros', value: (enrolledCourses.length * 6).toString().padStart(2, '0'), icon: Calendar },
+                { label: 'Proyectos', value: '01', icon: Target },
+                { label: 'Horas', value: (enrolledCourses.length * 12).toString().padStart(2, '0'), icon: Clock },
               ].map((stat, i) => (
                 <div key={i} className="bg-[#1a1814] p-6 rounded-3xl border border-white/5 flex items-center gap-4">
                   <div className="w-12 h-12 bg-amber/10 rounded-2xl flex items-center justify-center">
@@ -112,7 +167,7 @@ export function StudentDashboard() {
             {/* Dashboard Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               
-              {/* Medals Details */}
+              {/* Medals Details ... (unchanged) */}
               <div className="bg-[#1a1814] rounded-3xl p-8 border border-white/5">
                 <h3 className="text-xl font-serif font-bold mb-8 flex items-center gap-2 text-white">
                   <Star className="w-5 h-5 text-amber" /> Mis Logros Académicos
@@ -154,6 +209,9 @@ export function StudentDashboard() {
                       </div>
                     </div>
                   ))}
+                  {enrolledCourses.length === 0 && (
+                    <p className="text-sm text-gray-500 text-center py-4 italic">No tienes encuentros programados.</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -162,27 +220,34 @@ export function StudentDashboard() {
             <div className="bg-[#1a1814] rounded-3xl p-8 border border-white/5">
               <h3 className="text-xl font-serif font-bold mb-8">Mis Experiencias</h3>
               <div className="space-y-8">
-                {[
-                  { name: 'Negocios Digitales', uni: 'UTDT', progress: 65, color: 'bg-amber' },
-                  { name: 'Diseño Global', uni: 'UdeSA', progress: 40, color: 'bg-amber' },
-                  { name: 'Economía & Finanzas', uni: 'UCEMA', progress: 100, color: 'bg-green-500' },
-                ].map((course, i) => (
-                  <div key={i} className="space-y-3">
-                    <div className="flex justify-between items-end">
-                      <div>
-                        <h4 className="font-bold text-lg">{course.name}</h4>
-                        <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">{course.uni}</p>
+                {enrolledCourses.map((enrollment, i) => {
+                  const progress = enrollment.completed ? 100 : 25 // Mock progress for now
+                  return (
+                    <div key={i} className="space-y-3">
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <h4 className="font-bold text-lg">{enrollment.courses.nombre}</h4>
+                          <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">
+                            {enrollment.courses.universities.nombre}
+                          </p>
+                        </div>
+                        <span className="text-sm font-bold text-amber">{progress}%</span>
                       </div>
-                      <span className="text-sm font-bold text-amber">{course.progress}%</span>
+                      <div className="w-full h-2 bg-[#0f0e0c] rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${progress === 100 ? 'bg-green-500' : 'bg-amber'} transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(239,159,39,0.3)]`}
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="w-full h-2 bg-[#0f0e0c] rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full ${course.color} transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(239,159,39,0.3)]`}
-                        style={{ width: `${course.progress}%` }}
-                      ></div>
-                    </div>
+                  )
+                })}
+                {enrolledCourses.length === 0 && (
+                  <div className="text-center py-10">
+                    <p className="text-gray-500 mb-6 italic">Aún no te has inscripto a ninguna experiencia.</p>
+                    <Link to="/catalogo" className="text-amber font-bold hover:underline">Explorar Catálogo →</Link>
                   </div>
-                ))}
+                )}
               </div>
             </div>
 

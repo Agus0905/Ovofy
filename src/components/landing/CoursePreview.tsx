@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Search, Clock } from 'lucide-react'
+import { Search, Clock, Sparkles } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import { getUniversityStyle } from '../../utils/universityStyles'
 
 const universities = ["Todas", "Di Tella", "UB", "UADE", "UCEMA", "ENERC", "Austral"]
 const careers = ["Todas", "Diseño", "Derecho", "Ingeniería", "Economía", "Cine", "Arquitectura", "Marketing", "Medicina"]
@@ -11,7 +12,7 @@ const sampleCourses = [
     title: "Diseño Gráfico",
     university: "Universidad Di Tella",
     career: "Diseño",
-    image: "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=200&fit=crop",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/4/41/Torcuato_di_tella_logo.jpg",
     enrolled: 7,
     totalSpots: 20,
     rating: 4.8,
@@ -23,7 +24,7 @@ const sampleCourses = [
     title: "Derecho Corporativo",
     university: "Universidad de Buenos Aires",
     career: "Derecho",
-    image: "https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=400&h=200&fit=crop",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Logo_UCEMA.svg/1200px-Logo_UCEMA.svg.png", // Using UCEMA as fallback for reliable logo
     enrolled: 3,
     totalSpots: 20,
     rating: 4.9,
@@ -35,7 +36,7 @@ const sampleCourses = [
     title: "Ingeniería Industrial",
     university: "UADE",
     career: "Ingeniería",
-    image: "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=400&h=200&fit=crop",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Logo_ITBA.svg/1024px-Logo_ITBA.svg.png", // Using ITBA as fallback for reliable logo
     enrolled: 12,
     totalSpots: 20,
     rating: 4.7,
@@ -69,126 +70,151 @@ export function CoursePreview({ openAuthModal }: { openAuthModal: (mode: 'login'
   }
 
   return (
-    <section id="catalog-section" className="py-20 bg-warm-cream dark:bg-[#0f0e0c]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl lg:text-4xl font-serif text-center text-dark-brown dark:text-[#f5f0e8] mb-12">
-          Catálogo de Cursos
-        </h2>
+    <section id="catalog-section" className="py-24 bg-warm-cream dark:bg-[#0f0e0c] relative overflow-hidden transition-colors duration-500">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-dark-brown dark:text-white mb-6">
+            Catálogo de Cursos
+          </h2>
+          <p className="text-dark-brown/60 dark:text-gray-400 max-w-2xl mx-auto text-lg">
+            Experimentá tu futura carrera antes de elegirla. Cursos prácticos dictados por las mejores universidades.
+          </p>
+        </div>
 
         {/* Search Bar */}
-        <div className="relative mb-8 max-w-2xl mx-auto">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-brown/40" />
+        <div className="relative mb-12 max-w-2xl mx-auto group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-brown/30 group-focus-within:text-amber transition-colors" />
           <input
             type="text"
-            placeholder="Buscar cursos..."
+            placeholder="Buscar por carrera, universidad o habilidad..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-xl text-dark-brown dark:text-[#f5f0e8] placeholder-dark-brown/40 dark:placeholder-gray-400"
+            className="w-full pl-14 pr-6 py-4 bg-white dark:bg-[#1a1814] border border-dark-brown/10 dark:border-white/10 rounded-2xl text-dark-brown dark:text-white placeholder-dark-brown/30 shadow-xl focus:ring-2 focus:ring-amber/20 outline-none transition-all"
           />
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-4 justify-center mb-8">
-          <select
-            value={selectedUniversity}
-            onChange={(e) => setSelectedUniversity(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8]"
-          >
-            {universities.map(uni => (
-              <option key={uni} value={uni}>{uni}</option>
-            ))}
-          </select>
+        <div className="flex flex-wrap gap-4 justify-center mb-16">
+          <div className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-[#1a1814] rounded-xl shadow-sm border border-dark-brown/5">
+            <span className="text-[10px] font-bold text-dark-brown/40 uppercase tracking-widest">Uni</span>
+            <select
+              value={selectedUniversity}
+              onChange={(e) => setSelectedUniversity(e.target.value)}
+              className="bg-transparent text-sm font-bold text-dark-brown dark:text-white outline-none cursor-pointer"
+            >
+              {universities.map(uni => (
+                <option key={uni} value={uni}>{uni}</option>
+              ))}
+            </select>
+          </div>
 
-          <select
-            value={selectedCareer}
-            onChange={(e) => setSelectedCareer(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-[#1a1814] border border-dark-brown/20 dark:border-[#2a2620] rounded-lg text-dark-brown dark:text-[#f5f0e8]"
-          >
-            {careers.map(career => (
-              <option key={career} value={career}>{career}</option>
-            ))}
-          </select>
+          <div className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-[#1a1814] rounded-xl shadow-sm border border-dark-brown/5">
+            <span className="text-[10px] font-bold text-dark-brown/40 uppercase tracking-widest">Área</span>
+            <select
+              value={selectedCareer}
+              onChange={(e) => setSelectedCareer(e.target.value)}
+              className="bg-transparent text-sm font-bold text-dark-brown dark:text-white outline-none cursor-pointer"
+            >
+              {careers.map(career => (
+                <option key={career} value={career}>{career}</option>
+              ))}
+            </select>
+          </div>
 
           <button
             onClick={() => setShowTrending(!showTrending)}
-            className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
+            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 border ${
               showTrending
-                ? 'bg-amber text-white border-amber'
-                : 'bg-white dark:bg-[#1a1814] border-dark-brown/20 dark:border-[#2a2620] text-dark-brown dark:text-[#f5f0e8]'
+                ? 'bg-amber text-white border-amber shadow-lg shadow-amber/20'
+                : 'bg-white dark:bg-[#1a1814] border-dark-brown/10 text-dark-brown dark:text-white hover:border-amber/50'
             }`}
           >
-            <Clock className="w-4 h-4" />
-            <span>Tendencia</span>
+            <Sparkles className="w-4 h-4" />
+            Tendencia
           </button>
         </div>
 
         {/* Course Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {filteredCourses.map(course => (
-            <div key={course.id} className="bg-white dark:bg-[#1a1814] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <img
-                src={course.image}
-                alt={course.title}
-                className="w-full h-40 object-cover"
-              />
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-amber font-medium">{course.university}</span>
-                  {course.trending && (
-                    <span className="text-xs bg-amber/10 text-amber px-2 py-1 rounded-full">En tendencia</span>
-                  )}
-                </div>
-                <h3 className="text-lg font-serif font-semibold text-dark-brown dark:text-[#f5f0e8] mb-2">
-                  {course.title}
-                </h3>
-                <p className="text-sm text-dark-brown/60 dark:text-gray-400 mb-3">{course.career}</p>
-                
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {course.tags.map((tag: string) => (
-                    <span key={tag} className="text-xs bg-dark-brown/10 dark:bg-white/10 text-dark-brown dark:text-[#f5f0e8] px-2 py-1 rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Spots */}
-                <div className="mb-3">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-dark-brown/80 dark:text-gray-300">{course.enrolled} de {course.totalSpots} cupos</span>
-                  </div>
-                  <div className="w-full bg-dark-brown/10 dark:bg-white/10 rounded-full h-2">
-                    <div
-                      className="bg-amber h-2 rounded-full transition-all"
-                      style={{ width: `${(course.enrolled / course.totalSpots) * 100}%` }}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {filteredCourses.map(course => {
+            const uniStyle = getUniversityStyle(course.university)
+            return (
+              <div key={course.id} className="bg-white dark:bg-[#1a1814] rounded-[2rem] overflow-hidden shadow-sm border border-dark-brown/5 dark:border-white/5 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
+                {/* Artistic Background Design */}
+                <div className={`relative h-48 ${uniStyle.bg} flex items-center justify-center overflow-hidden transition-transform duration-700 group-hover:scale-105`}>
+                  <div 
+                    className="absolute inset-0 opacity-40 dark:opacity-20"
+                    style={{ 
+                      backgroundImage: uniStyle.pattern,
+                      backgroundSize: '40px 40px'
+                    }} 
+                  />
+                  
+                  {/* University Logo (Medium Light) */}
+                  <div className="relative z-10 p-6 transform group-hover:scale-110 transition-transform duration-700">
+                    <img 
+                      src={course.logo} 
+                      alt={course.university} 
+                      className="w-24 h-24 object-contain opacity-60 dark:opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" 
                     />
                   </div>
+
+                  {course.trending && (
+                    <div className="absolute top-4 right-4 bg-amber text-white p-2 rounded-full shadow-lg">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 text-sm text-dark-brown/60 dark:text-gray-400">
-                    <Clock className="w-4 h-4" />
-                    <span>6 encuentros</span>
+                <div className="p-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-6 rounded-full bg-amber/10 flex items-center justify-center text-amber">
+                      <Clock className="w-3 h-3" />
+                    </div>
+                    <span className="text-[10px] font-bold text-dark-brown/40 dark:text-gray-500 uppercase tracking-[0.2em]">{course.university}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-amber">★</span>
-                    <span className="text-sm text-dark-brown dark:text-[#f5f0e8]">{course.rating}</span>
+                  
+                  <h3 className="text-xl font-serif font-bold text-dark-brown dark:text-white mb-3 group-hover:text-amber transition-colors">
+                    {course.title}
+                  </h3>
+                  
+                  <p className="text-sm text-dark-brown/60 dark:text-gray-400 mb-6 line-clamp-2">
+                    {course.career} • Explorá esta carrera a través de 6 encuentros intensivos y prácticos.
+                  </p>
+
+                  {/* Spots */}
+                  <div className="mb-8">
+                    <div className="flex justify-between items-end mb-2">
+                      <span className="text-[10px] font-bold text-dark-brown/40 dark:text-gray-500 uppercase tracking-widest">Cupos Disponibles</span>
+                      <span className="text-xs font-bold text-dark-brown dark:text-white">{course.enrolled} de {course.totalSpots}</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-dark-brown/5 dark:bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className="bg-amber h-full rounded-full transition-all duration-1000"
+                        style={{ width: `${(course.enrolled / course.totalSpots) * 100}%` }}
+                      />
+                    </div>
                   </div>
+
+                  <button
+                    onClick={() => handleEnroll(course.id)}
+                    className={`w-full py-4 rounded-xl font-bold text-sm transition-all shadow-md active:scale-[0.98] ${
+                      enrolledCourse === course.id 
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-amber text-white hover:bg-amber/90 hover:shadow-amber/20'
+                    }`}
+                  >
+                    {enrolledCourse === course.id ? '¡Inscripto!' : 'Reservar Lugar'}
+                  </button>
                 </div>
-                <button
-                  onClick={() => handleEnroll(course.id)}
-                  className="btn-primary w-full"
-                >
-                  {enrolledCourse === course.id ? '¡Inscripto!' : 'Inscribirme'}
-                </button>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         <div className="text-center">
-          <button className="btn-outline px-8 py-3">
-            Ver todos →
+          <button className="px-12 py-4 bg-dark-brown/5 dark:bg-white/5 rounded-2xl font-bold text-dark-brown dark:text-white hover:bg-dark-brown/10 transition-all border border-dark-brown/10">
+            Explorar Catálogo Completo →
           </button>
         </div>
       </div>

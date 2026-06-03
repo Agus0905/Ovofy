@@ -9,13 +9,13 @@ import { CourseCatalog } from './pages/CourseCatalog'
 import { CourseDetail } from './pages/CourseDetail'
 import { UniversityComparator } from './pages/UniversityComparator'
 import { VocationalQuiz } from './pages/VocationalQuiz'
-import { MentorshipPortal } from './pages/MentorshipPortal'
 import { StudentDashboard } from './pages/StudentDashboard'
 import { UniversityPortal } from './pages/UniversityPortal'
 import { ProfessorPortal } from './pages/ProfessorPortal'
 import { AdminPanel } from './pages/AdminPanel'
 import { PublicProfile } from './pages/PublicProfile'
 import { HowItWorks } from './pages/HowItWorks'
+import { CompleteProfile } from './pages/CompleteProfile'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { useAuth } from './contexts/AuthContext'
 import { AuthModal } from './components/auth/AuthModal'
@@ -26,8 +26,8 @@ function AppRoutes() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
   const location = useLocation()
 
-  // Mock progress calculation for demo
-  const progress = profile?.role === 'student' ? 65 : 0
+  // Removed mock progress calculation that was causing issues for other roles
+  const progress = 0
 
   const openAuthModal = (mode: 'login' | 'register') => {
     setAuthMode(mode)
@@ -36,8 +36,8 @@ function AppRoutes() {
 
   return (
     <div className="min-h-screen flex flex-col bg-warm-cream dark:bg-[#0f0e0c] dark:text-[#f5f0e8] transition-colors duration-300">
-      {/* Global Progress Bar */}
-      {profile?.role === 'student' && (
+      {/* Global Progress Bar - Only visible for students if progress > 0 */}
+      {profile?.role === 'student' && progress > 0 && (
         <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-[#1a1814] z-50">
           <div
             className="h-full bg-amber transition-all duration-500 ease-out"
@@ -63,8 +63,8 @@ function AppRoutes() {
               <Route path="/curso/:id" element={<CourseDetail />} />
               <Route path="/comparar" element={<UniversityComparator />} />
               <Route path="/quiz" element={<VocationalQuiz />} />
-              <Route path="/mentorias" element={<MentorshipPortal />} />
               <Route path="/perfil/:userId" element={<PublicProfile />} />
+              <Route path="/completar-perfil" element={<CompleteProfile />} />
               
               {/* Protected routes */}
               <Route 
@@ -99,7 +99,15 @@ function AppRoutes() {
                   </ProtectedRoute>
                 } 
               />
-              
+              <Route 
+                path="/completar-perfil" 
+                element={
+                  <ProtectedRoute>
+                    <CompleteProfile />
+                  </ProtectedRoute>
+                } 
+              />
+
               {/* Redirect based on role */}
               <Route 
                 path="/dashboard" 
@@ -142,7 +150,7 @@ function App() {
 
   return (
     <AuthProvider>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AppRoutes />
       </Router>
     </AuthProvider>

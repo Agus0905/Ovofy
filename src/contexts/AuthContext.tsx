@@ -17,44 +17,9 @@ interface AuthContextType {
   profile: any
   login: (email: string, password: string) => Promise<{ error: any }>
   loginWithGoogle: () => Promise<{ error: any }>
-  mockLogin: (role: 'student' | 'university' | 'professor' | 'admin') => void
   register: (data: RegisterData) => Promise<{ error: any }>
   logout: () => Promise<{ error: any }>
   loading: boolean
-}
-
-const MOCK_PROFILES = {
-  student: {
-    id: 'mock-student-id',
-    email: 'estudiante@demo.com',
-    nombre: 'Agustín',
-    apellido: 'Perez',
-    role: 'student',
-    dni: '12345678',
-    colegio: 'Nacional Buenos Aires',
-    barrio: 'Palermo'
-  },
-  university: {
-    id: 'mock-university-id',
-    email: 'admisiones@ditella.edu',
-    nombre: 'UTDT',
-    apellido: 'Admisiones',
-    role: 'university'
-  },
-  professor: {
-    id: 'mock-professor-id',
-    email: 'j.garcia@uade.edu.ar',
-    nombre: 'Juan',
-    apellido: 'García',
-    role: 'professor'
-  },
-  admin: {
-    id: 'mock-admin-id',
-    email: 'admin@ovofy.com',
-    nombre: 'Admin',
-    apellido: 'Sistema',
-    role: 'admin'
-  }
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -65,44 +30,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   const fetchProfile = async (userId: string) => {
+    console.log('AuthContext: Iniciando fetchProfile para:', userId)
+    let isMounted = true
+    const timeout = setTimeout(() => {
+      if (isMounted) {
+        console.warn('AuthContext: fetchProfile timed out after 5s')
+        setLoading(false)
+      }
+    }, 5000)
+
     try {
+      setLoading(true)
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
 
-      if (error) throw error
-      setProfile(data)
+      if (error) {
+        console.error('AuthContext: Error en query de perfil:', error)
+        throw error
+      }
+      
+      if (isMounted) {
+        console.log('AuthContext: Perfil recibido:', data?.nombre || 'null')
+        setProfile(data)
+      }
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      console.error('AuthContext: Excepción en fetchProfile:', error)
+      if (isMounted) setProfile(null)
     } finally {
-      setLoading(false)
+      clearTimeout(timeout)
+      if (isMounted) setLoading(false)
     }
+    return () => { isMounted = false }
   }
 
   useEffect(() => {
-    // Check active sessions and sets up listener
+    // Check active sessions
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
       if (session?.user) {
+        setUser(session.user)
         fetchProfile(session.user.id)
       } else {
-        const savedProfile = localStorage.getItem('ovofy_mock_profile')
-        if (savedProfile) {
-          const p = JSON.parse(savedProfile)
-          setUser({ id: p.id, email: p.email })
-          setProfile(p)
-        }
+        setUser(null)
+        setProfile(null)
         setLoading(false)
       }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        fetchProfile(session.user.id)
-      } else if (!localStorage.getItem('ovofy_mock_profile')) {
+        setUser(session.user)
+        // If it's a sign in or initial session, fetch profile
+        await fetchProfile(session.user.id)
+      } else {
+        setUser(null)
         setProfile(null)
         setLoading(false)
       }
@@ -111,22 +94,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const mockLogin = (role: 'student' | 'university' | 'professor' | 'admin') => {
-    const p = MOCK_PROFILES[role]
-    setUser({ id: p.id, email: p.email })
-    setProfile(p)
-    localStorage.setItem('ovofy_mock_profile', JSON.stringify(p))
-  }
-
   const login = async (email: string, password: string) => {
-    // If it's a mock email, use mockLogin
-    if (email.includes('admin') && password === 'admin') {
-      mockLogin('admin')
-      return { error: null }
-    }
-
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (!error) localStorage.removeItem('ovofy_mock_profile')
     return { error }
   }
 
@@ -134,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin
+        redirectTo: `${window.location.origin}/perfil`
       }
     })
     return { error }
@@ -157,20 +126,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     if (authError) return { error: authError }
-    localStorage.removeItem('ovofy_mock_profile')
     return { error: null }
   }
 
   const logout = async () => {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
-    localStorage.removeItem('ovofy_mock_profile')
-    return { error: null }
+    return { error }
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, login, loginWithGoogle, mockLogin, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, profile, login, loginWithGoogle, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   )

@@ -6,25 +6,64 @@ import { ScheduleSection } from '../components/course/ScheduleSection'
 import { TestimonialsSection } from '../components/course/TestimonialsSection'
 import { EnrollmentSection } from '../components/course/EnrollmentSection'
 import { useCourses } from '../hooks/useCourses'
+import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabase'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 
 export function CourseDetail() {
   const { id } = useParams()
+  const { user } = useAuth()
   const navigate = useNavigate()
-  const { courses, loading } = useCourses()
+  const { courses, loading: coursesLoading } = useCourses()
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [course, setCourse] = useState<any>(null)
+  const [encuentros, setEncuentros] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!loading && courses.length > 0) {
-      const found = courses.find(c => c.id === id)
-      if (found) {
+    async function fetchData() {
+      if (!id) return
+      
+      try {
+        setLoading(true)
+        
+        // Find course in already fetched courses or fetch it specifically
+        const found = courses.find(c => c.id === id)
         setCourse(found)
+
+        // Fetch encuentros
+        const { data: encuentrosData } = await supabase
+          .from('encuentros')
+          .select('*')
+          .eq('course_id', id)
+          .order('numero', { ascending: true })
+        
+        if (encuentrosData) setEncuentros(encuentrosData)
+
+        // Check enrollment
+        if (user) {
+          const { data: enrollmentData } = await supabase
+            .from('enrollments')
+            .select('id')
+            .eq('student_id', user.id)
+            .eq('course_id', id)
+            .single()
+          
+          setIsEnrolled(!!enrollmentData)
+        }
+      } catch (err) {
+        console.error('Error fetching course detail:', err)
+      } finally {
+        setLoading(false)
       }
     }
-  }, [id, courses, loading])
 
-  if (loading) {
+    if (!coursesLoading) {
+      fetchData()
+    }
+  }, [id, courses, coursesLoading, user])
+
+  if (loading || coursesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-warm-cream dark:bg-[#0f0e0c]">
         <Loader2 className="w-10 h-10 text-amber animate-spin" />
@@ -49,14 +88,20 @@ export function CourseDetail() {
     { id: 3, title: "Networking con Graduados", description: "Charla abierta con profesionales del área", duration: "2 horas" }
   ]
 
-  const schedule = [
-    { day: "Encuentro 1", time: "Sábado 10:00", topic: `Simulación 1er año - ${course.nombre} Básico` },
-    { day: "Encuentro 2", time: "Sábado 10:00", topic: "Simulación 2do año - Temas Avanzados" },
-    { day: "Encuentro 3", time: "Sábado 10:00", topic: "Taller de Herramientas Digitales" },
-    { day: "Encuentro 4", time: "Sábado 10:00", topic: "Caso de Estudio Real" },
-    { day: "Encuentro 5", time: "Sábado 10:00", topic: "Charla: Salida Laboral y Futuro" },
-    { day: "Encuentro 6", time: "Sábado 10:00", topic: "Tour por el Campus + Cierre" }
-  ]
+  const schedule = encuentros.length > 0 
+    ? encuentros.map(e => ({
+        day: `Encuentro ${e.numero}`,
+        time: new Date(e.fecha).toLocaleString('es-AR', { weekday: 'long', hour: '2-digit', minute: '2-digit' }),
+        topic: e.titulo
+      }))
+    : [
+        { day: "Encuentro 1", time: "Sábado 10:00", topic: `Simulación 1er año - ${course.nombre} Básico` },
+        { day: "Encuentro 2", time: "Sábado 10:00", topic: "Simulación 2do año - Temas Avanzados" },
+        { day: "Encuentro 3", time: "Sábado 10:00", topic: "Taller de Herramientas Digitales" },
+        { day: "Encuentro 4", time: "Sábado 10:00", topic: "Caso de Estudio Real" },
+        { day: "Encuentro 5", time: "Sábado 10:00", topic: "Charla: Salida Laboral y Futuro" },
+        { day: "Encuentro 6", time: "Sábado 10:00", topic: "Tour por el Campus + Cierre" }
+      ]
 
   const testimonials = [
     { id: 1, name: "Agustina R.", course: course.nombre, text: `Este curso de ${course.universities.nombre} me cambió la perspectiva totalmente.`, rating: 5 },
@@ -64,8 +109,26 @@ export function CourseDetail() {
     { id: 3, name: "Santi K.", course: course.nombre, text: "Muy práctico, nada de teoría aburrida.", rating: 4.8 }
   ]
 
-  const handleEnroll = () => {
-    setIsEnrolled(true)
+  const handleEnroll = async () => {
+    if (!user) {
+      // Should show auth modal, but for now we assume it's handled by parent or context
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('enrollments')
+        .insert({
+          student_id: user.id,
+          course_id: id
+        })
+      
+      if (error) throw error
+      setIsEnrolled(true)
+    } catch (err) {
+      console.error('Error enrolling:', err)
+      alert('Error al inscribirse. Por favor intenta de nuevo.')
+    }
   }
 
   return (
@@ -74,7 +137,7 @@ export function CourseDetail() {
         title={course.nombre}
         university={course.universities.nombre}
         career={course.carrera}
-        image={course.image_url}
+        logo={course.universities.logo_url}
       />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">

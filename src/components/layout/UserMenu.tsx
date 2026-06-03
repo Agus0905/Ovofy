@@ -20,6 +20,13 @@ export function UserMenu() {
     setIsOpen(false)
   }
 
+  const getDashboardPath = () => {
+    if (profile?.role === 'university') return '/universidad'
+    if (profile?.role === 'professor') return '/profesor'
+    if (profile?.role === 'admin') return '/admin'
+    return '/perfil'
+  }
+
   return (
     <div className="relative">
       <button
@@ -37,16 +44,16 @@ export function UserMenu() {
               <p className="text-sm font-medium text-dark-brown dark:text-[#f5f0e8]">
                 {profile?.nombre} {profile?.apellido}
               </p>
-              <p className="text-xs text-dark-brown/60 dark:text-gray-400">
-                {profile?.email}
+              <p className="text-xs text-dark-brown/60 dark:text-gray-400 capitalize">
+                Rol: {profile?.role}
               </p>
             </div>
             <Link
-              to="/perfil"
+              to={getDashboardPath()}
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 text-sm text-dark-brown dark:text-[#f5f0e8] hover:bg-dark-brown/5 dark:hover:bg-white/5"
+              className="block px-4 py-2 text-sm text-dark-brown dark:text-[#f5f0e8] hover:bg-dark-brown/5 dark:hover:bg-white/5 font-bold"
             >
-              Mi Perfil
+              Ir al Dashboard
             </Link>
             <button
               onClick={handleLogout}

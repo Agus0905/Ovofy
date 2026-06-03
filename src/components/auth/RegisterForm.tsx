@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { ShieldCheck, Upload, School, User, Mail, Lock, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
+import { ShieldCheck, Upload, School, User, Mail, Lock, CheckCircle2, XCircle, Loader2, MapPin, ArrowRight } from 'lucide-react'
+
 
 interface RegisterFormProps {
   onSuccess: () => void
@@ -10,69 +11,40 @@ interface RegisterFormProps {
 type VerificationStatus = 'IDLE' | 'VERIFYING' | 'APPROVED' | 'REJECTED' | 'PENDING'
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
-  const { mockLogin, loginWithGoogle } = useAuth()
+  const { register, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [status, setStatus] = useState<VerificationStatus>('IDLE')
   const [errorReason, setErrorReason] = useState('')
   
   const [formData, setFormData] = useState({
-    fullName: '',
+    nombre: '',
+    apellido: '',
     email: '',
     password: '',
-    institution: '',
-    academicYear: '',
-    document: null as File | null
+    dni: '',
+    fecha_nacimiento: '',
+    colegio: '',
+    barrio: ''
   })
-
-  const academicYears = [
-    '1º Año / 7º Grado', '2º Año / 8º Grado', '3º Año / 9º Grado', 
-    '4º Año / 10º Grado', '5º Año / 11º Grado', '6º Año / 12º Grado'
-  ]
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus('VERIFYING')
 
-    // Simulate "Digital Admissions Officer" logic (Gemini 1.5 Flash Processing)
-    setTimeout(() => {
-      const isEdu = formData.email.endsWith('.edu') || formData.email.endsWith('.edu.ar')
-      const hasDoc = !!formData.document
-      
-      // Verification Protocol Simulation
-      if (!hasDoc && !isEdu) {
-        setStatus('REJECTED')
-        setErrorReason('Los datos no pudieron ser validados como estudiante de secundaria. Se requiere documento oficial.')
-        return
-      }
+    try {
+      const { error } = await register(formData)
+      if (error) throw error
 
-      if (formData.fullName.length < 5) {
-        setStatus('REJECTED')
-        setErrorReason('INVALID_NAME: El nombre en el documento no coincide con el registro.')
-        return
-      }
-
-      // Final JSON Protocol Response Simulation
-      const response = {
-        status: "APPROVED",
-        confidence_score: isEdu ? 98 : 85,
-        student_data: {
-          full_name: formData.fullName,
-          institution: formData.institution,
-          academic_year: formData.academicYear
-        },
-        security_flag: false
-      }
-
-      if (response.status === "APPROVED") {
-        setStatus('APPROVED')
-        setTimeout(() => {
-          mockLogin('student')
-          onSuccess()
-          navigate('/perfil')
-        }, 2000)
-      }
-    }, 2500)
+      setStatus('APPROVED')
+      setTimeout(() => {
+        onSuccess()
+        navigate('/perfil')
+      }, 2000)
+    } catch (err: any) {
+      setStatus('REJECTED')
+      setErrorReason(err.message || 'Error al procesar el registro')
+    }
   }
 
   const handleGoogleLogin = async () => {
@@ -159,34 +131,43 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       <form onSubmit={handleVerify} className="space-y-5">
         {step === 1 && (
           <div className="space-y-4 animate-slide-in-right">
-            <div>
-              <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Nombre Completo</label>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-brown/30" />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Nombre</label>
                 <input
                   type="text"
                   required
-                  placeholder="Ej: Juan Pérez"
-                  className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
-                  value={formData.fullName}
-                  onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                  placeholder="Juan"
+                  className="w-full px-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
+                  value={formData.nombre}
+                  onChange={e => setFormData({ ...formData, nombre: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Apellido</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Pérez"
+                  className="w-full px-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
+                  value={formData.apellido}
+                  onChange={e => setFormData({ ...formData, apellido: e.target.value })}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Correo Institucional o Personal</label>
+              <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Correo Electrónico</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-brown/30" />
                 <input
                   type="email"
                   required
-                  placeholder="usuario@colegio.edu"
+                  placeholder="usuario@email.com"
                   className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
                   value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
-              <p className="text-[10px] text-amber font-bold mt-2 ml-1">TIP: Los correos .edu tienen aprobación prioritaria.</p>
             </div>
             <div>
               <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Contraseña</label>
@@ -207,58 +188,66 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
               onClick={() => setStep(2)}
               className="w-full py-4 bg-dark-brown dark:bg-white text-white dark:text-dark-brown rounded-xl font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 group"
             >
-              Continuar <CheckCircle2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Siguiente Paso <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         )}
 
         {step === 2 && (
           <div className="space-y-4 animate-slide-in-right">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">DNI</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="12.345.678"
+                  className="w-full px-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
+                  value={formData.dni}
+                  onChange={e => setFormData({ ...formData, dni: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">F. Nacimiento</label>
+                <input
+                  type="date"
+                  required
+                  className="w-full px-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
+                  value={formData.fecha_nacimiento}
+                  onChange={e => setFormData({ ...formData, fecha_nacimiento: e.target.value })}
+                />
+              </div>
+            </div>
             <div>
-              <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Institución Educativa</label>
+              <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Colegio / Institución</label>
               <div className="relative">
                 <School className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-brown/30" />
                 <input
                   type="text"
                   required
-                  placeholder="Nombre de tu escuela/colegio"
+                  placeholder="Nombre de tu colegio"
                   className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
-                  value={formData.institution}
-                  onChange={e => setFormData({ ...formData, institution: e.target.value })}
+                  value={formData.colegio}
+                  onChange={e => setFormData({ ...formData, colegio: e.target.value })}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Año Escolar</label>
-              <select
-                required
-                className="w-full px-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all appearance-none cursor-pointer"
-                value={formData.academicYear}
-                onChange={e => setFormData({ ...formData, academicYear: e.target.value })}
-              >
-                <option value="">Selecciona tu año actual</option>
-                {academicYears.map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="pt-2">
-              <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-2 ml-1">Certificado de Alumno Regular</label>
-              <div className="relative border-2 border-dashed border-dark-brown/10 dark:border-white/10 rounded-2xl p-6 text-center hover:border-amber/50 transition-colors cursor-pointer group">
+              <label className="block text-sm font-bold text-dark-brown/70 dark:text-gray-300 mb-1.5 ml-1">Barrio / Ciudad</label>
+              <div className="relative">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-brown/30" />
                 <input
-                  type="file"
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  onChange={e => setFormData({ ...formData, document: e.target.files?.[0] || null })}
+                  type="text"
+                  required
+                  placeholder="Ej: Palermo, CABA"
+                  className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#0f0e0c] border border-dark-brown/10 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-amber outline-none transition-all"
+                  value={formData.barrio}
+                  onChange={e => setFormData({ ...formData, barrio: e.target.value })}
                 />
-                <Upload className="w-8 h-8 text-dark-brown/20 dark:text-white/20 mx-auto mb-2 group-hover:text-amber transition-colors" />
-                <p className="text-xs font-bold text-dark-brown/40 dark:text-gray-500 uppercase tracking-tighter">
-                  {formData.document ? formData.document.name : 'Subir imagen o PDF (Credencial/Certificado)'}
-                </p>
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <button 
                 type="button"
                 onClick={() => setStep(1)}
@@ -272,9 +261,9 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
                 className="flex-1 py-4 bg-amber text-white rounded-xl font-bold shadow-lg shadow-amber/20 hover:bg-amber/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {status === 'VERIFYING' ? (
-                  <>Analizando con IA... <Loader2 className="w-5 h-5 animate-spin" /></>
+                  <>Registrando... <Loader2 className="w-5 h-5 animate-spin" /></>
                 ) : (
-                  <>Finalizar Registro <ShieldCheck className="w-5 h-5" /></>
+                  <>Crear Cuenta <CheckCircle2 className="w-5 h-5" /></>
                 )}
               </button>
             </div>

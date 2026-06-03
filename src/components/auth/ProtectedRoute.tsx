@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { profile, loading } = useAuth()
+  const { user, profile, loading } = useAuth()
   const location = useLocation()
 
   if (loading) {
@@ -18,16 +18,25 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     )
   }
 
-  if (!profile) {
+  // If not even logged in to Supabase
+  if (!user) {
     return <Navigate to="/" state={{ from: location }} replace />
   }
 
-  if (requiredRole && profile.role !== requiredRole) {
+  // If student but missing critical info (like from a Google login)
+  // We check 'user' exists but 'profile' is missing DNI
+  if (!profile || (profile.role === 'student' && !profile.dni)) {
+    if (location.pathname !== '/completar-perfil') {
+      return <Navigate to="/completar-perfil" replace />
+    }
+  }
+
+  if (requiredRole && profile?.role !== requiredRole) {
     // Redirect to appropriate dashboard based on role
-    if (profile.role === 'student') return <Navigate to="/perfil" replace />
-    if (profile.role === 'university') return <Navigate to="/universidad" replace />
-    if (profile.role === 'professor') return <Navigate to="/profesor" replace />
-    if (profile.role === 'admin') return <Navigate to="/admin" replace />
+    if (profile?.role === 'student') return <Navigate to="/perfil" replace />
+    if (profile?.role === 'university') return <Navigate to="/universidad" replace />
+    if (profile?.role === 'professor') return <Navigate to="/profesor" replace />
+    if (profile?.role === 'admin') return <Navigate to="/admin" replace />
     return <Navigate to="/" replace />
   }
 
