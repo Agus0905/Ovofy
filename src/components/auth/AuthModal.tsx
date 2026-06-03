@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { X, User, GraduationCap, School, ShieldCheck } from 'lucide-react'
+import { X } from 'lucide-react'
 import { LoginForm } from './LoginForm'
 import { RegisterForm } from './RegisterForm'
-import { useAuth } from '../../contexts/AuthContext'
 
 interface AuthModalProps {
   isOpen: boolean

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, BookOpen, BarChart3, Settings, Plus, Loader2, Image as ImageIcon, Save, Trash2, Users, MapPin, GraduationCap, AlertCircle, RefreshCw } from 'lucide-react'
+import { LayoutDashboard, BookOpen, BarChart3, Settings, Plus, Loader2, Save, Trash2, Users, MapPin, GraduationCap, RefreshCw } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { Link } from 'react-router-dom'

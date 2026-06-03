@@ -1,12 +1,10 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { ShieldCheck, User, School, MapPin, Loader2, CheckCircle2 } from 'lucide-react'
 
 export function CompleteProfile() {
   const { user, profile } = useAuth()
-  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     nombre: profile?.nombre || '',

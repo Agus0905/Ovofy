@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Search, Rocket, GraduationCap, Target, Users, Zap, MapPin } from 'lucide-react'
+import { ArrowRight, Search, Rocket, GraduationCap, Target, Users, Zap } from 'lucide-react'
 import { motion, useScroll, useTransform, useSpring, useVelocity, MotionValue } from 'framer-motion'
 
 const Stickman = ({ scrollY, velocity, rotation }: { scrollY: MotionValue<number>, velocity: MotionValue<number>, rotation: number }) => {
@@ -36,15 +36,15 @@ const Stickman = ({ scrollY, velocity, rotation }: { scrollY: MotionValue<number
     >
       <svg viewBox="0 0 100 150" className="w-full h-full text-amber fill-none stroke-current stroke-[10] stroke-linecap-round stroke-linejoin-round">
         {/* Head */}
-        <motion.circle cx="50" cy="25" r="12" style={{ cy: useTransform(headBob, b => 25 + b) }} />
+        <motion.circle cx="50" cy={useTransform(headBob, b => 25 + b)} r="12" />
         {/* Body */}
         <line x1="50" y1="37" x2="50" y2="90" />
         {/* Arms */}
-        <motion.line x1="50" y1="50" style={{ x2: arm1X }} y2="80" />
-        <motion.line x1="50" y1="50" style={{ x2: arm2X }} y2="80" />
+        <motion.line x1="50" y1="50" x2={arm1X} y2="80" />
+        <motion.line x1="50" y1="50" x2={arm2X} y2="80" />
         {/* Legs */}
-        <motion.line x1="50" y1="90" style={{ x2: leg1X, y2: leg1Y }} />
-        <motion.line x1="50" y1="90" style={{ x2: leg2X, y2: leg2Y }} />
+        <motion.line x1="50" y1="90" x2={leg1X} y2={leg1Y} />
+        <motion.line x1="50" y1="90" x2={leg2X} y2={leg2Y} />
       </svg>
     </motion.div>
   )

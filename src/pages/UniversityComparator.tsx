@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Landmark, ChevronDown, GraduationCap, Clock, Wallet, Briefcase, Map as MapIcon, FileText, Sparkles, Loader2, CheckCircle2, AlertCircle, Award, BookOpen, MapPin, Globe } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Clock, Wallet, Briefcase, Sparkles, CheckCircle2, Award, BookOpen, Globe } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../contexts/AuthContext'
 import { universities as localUniData, careerComparisons as localCareerData } from '../data/universities'
 
 export function UniversityComparator() {
-  const { user } = useAuth()
   const [comparisonMode, setComparisonMode] = useState<'universidades' | 'carreras'>('universidades')
   
   // Initialize with local data for instant load
@@ -16,14 +13,6 @@ export function UniversityComparator() {
   const [selectedEntityB, setSelectedEntityB] = useState(mappedLocal[1]?.nombre || '')
   
   const [selectedCareer, setSelectedCareer] = useState('Derecho')
-  const [fileA, setFileA] = useState<File | null>(null)
-  const [fileB, setFileB] = useState<File | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisStep, setAnalysisStep] = useState('')
-  const [showAIReport, setShowAIAnalysis] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false) // False because we have local data ready
-  const [isSyncing, setIsSyncing] = useState(true)
 
   useEffect(() => {
     async function fetchUniversities() {
@@ -55,9 +44,7 @@ export function UniversityComparator() {
           if (selectedEntityB === mappedLocal[1]?.nombre) setSelectedEntityB(data[1].nombre)
         }
       } catch (err: any) {
-        console.warn('Comparator: Sync failed or timed out, keeping local data.', err.message)
-      } finally {
-        setIsSyncing(false)
+        console.info('Comparator: Sync timed out or failed, using local fallback data.', err.message)
       }
     }
     fetchUniversities()
@@ -89,47 +76,6 @@ export function UniversityComparator() {
   // Find career data based on selected university and career
   const careerDataA = localCareerData.find(c => (c.university.includes(selectedEntityA) || selectedEntityA.includes(c.university)) && c.career === selectedCareer) || localCareerData.find(c => c.career === selectedCareer)
   const careerDataB = localCareerData.find(c => (c.university.includes(selectedEntityB) || selectedEntityB.includes(c.university)) && c.career === selectedCareer) || localCareerData.find(c => c.career === selectedCareer)
-
-  const uploadFile = async (file: File, entity: string) => {
-    if (!user) throw new Error('Debes iniciar sesión para subir archivos.')
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${user.id}/${Date.now()}_${entity}.${fileExt}`
-    const { error: uploadError } = await supabase.storage.from('study-plans').upload(fileName, file)
-    if (uploadError) throw uploadError
-    return fileName
-  }
-
-  const handleRunAIAnalysis = async () => {
-    if (!fileA || !fileB) {
-      setError('Por favor sube ambos programas para realizar el análisis.')
-      return
-    }
-    setIsAnalyzing(true)
-    setError('')
-    try {
-      setAnalysisStep('Subiendo archivos...')
-      await uploadFile(fileA, selectedEntityA)
-      await uploadFile(fileB, selectedEntityB)
-      setAnalysisStep('Analizando mallas curriculares con IA...')
-      await new Promise(r => setTimeout(r, 3000))
-      setIsAnalyzing(false)
-      setShowAIAnalysis(true)
-    } catch (err: any) {
-      setError(err.message || 'Error durante el análisis.')
-      setIsAnalyzing(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-warm-cream dark:bg-[#0f0e0c]">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-amber animate-spin" />
-          <p className="font-serif italic text-dark-brown/60">Sincronizando datos 2026...</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-warm-cream dark:bg-[#0f0e0c] pt-24 pb-20 relative overflow-hidden transition-colors duration-500">

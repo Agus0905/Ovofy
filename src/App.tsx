@@ -46,7 +46,7 @@ function AppRoutes() {
         </div>
       )}
       <Navbar onOpenAuth={openAuthModal} />
-      <main className="flex-grow">
+      <main className="flex-grow relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

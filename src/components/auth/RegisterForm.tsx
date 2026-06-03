@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { ShieldCheck, Upload, School, User, Mail, Lock, CheckCircle2, XCircle, Loader2, MapPin, ArrowRight } from 'lucide-react'
+import { ShieldCheck, School, Mail, Lock, CheckCircle2, XCircle, Loader2, MapPin, ArrowRight } from 'lucide-react'
 
 
 interface RegisterFormProps {

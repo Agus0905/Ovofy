@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let isMounted = true
     const timeout = setTimeout(() => {
       if (isMounted) {
-        console.warn('AuthContext: fetchProfile timed out after 5s')
+        console.info('AuthContext: fetchProfile timed out after 5s')
         setLoading(false)
       }
     }, 5000)
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         setUser(session.user)
         // If it's a sign in or initial session, fetch profile
