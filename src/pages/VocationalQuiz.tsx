@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { CheckCircle2, ChevronRight, Sparkles, ArrowRight } from 'lucide-react'
 import { QuizIntroduction } from '../components/quiz/QuizIntroduction'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 
 export function VocationalQuiz() {
+  const { user } = useAuth()
   const [hasStarted, setHasStarted] = useState(false)
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [scores, setScores] = useState({ R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 })
@@ -24,12 +27,30 @@ export function VocationalQuiz() {
     { id: 12, question: "Si tuvieras que construir un negocio:", options: [{ text: "Construiría el producto con mis propias manos.", type: "R" }, { text: "Gestionaría las ventas y la expansión del mercado.", type: "E" }] }
   ]
 
-  const handleAnswer = (type: string) => {
-    setScores(prev => ({ ...prev, [type]: prev[type as keyof typeof prev] + 1 }))
+  const handleAnswer = async (type: string) => {
+    const nextScores = { ...scores, [type]: scores[type as keyof typeof scores] + 1 }
+    setScores(nextScores)
+
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
     } else {
       setShowResults(true)
+      
+      // Persist results if user is logged in
+      if (user) {
+        try {
+          const report = getFullReport(nextScores)
+          await supabase.from('quiz_results').insert({
+            student_id: user.id,
+            answers: nextScores, // Storing final scores as a proxy for answers for now
+            career_matches: report.recommendations,
+            created_at: new Date().toISOString()
+          })
+          console.log('Quiz: Results saved to DB')
+        } catch (err) {
+          console.error('Quiz: Error saving results:', err)
+        }
+      }
     }
   }
 
@@ -44,8 +65,8 @@ export function VocationalQuiz() {
     window.print()
   }
 
-  const getFullReport = () => {
-    const percentages = Object.entries(scores).map(([type, score]) => ({
+  const getFullReport = (finalScores = scores) => {
+    const percentages = Object.entries(finalScores).map(([type, score]) => ({
       type,
       label: type === 'R' ? 'Realista' : type === 'I' ? 'Investigador' : type === 'A' ? 'Artístico' : type === 'S' ? 'Social' : type === 'E' ? 'Emprendedor' : 'Convencional',
       value: Math.round((score / 4) * 100)

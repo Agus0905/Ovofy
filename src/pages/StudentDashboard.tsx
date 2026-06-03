@@ -7,6 +7,8 @@ import { supabase } from '../lib/supabase'
 export function StudentDashboard() {
   const { profile, user } = useAuth()
   const [enrolledCourses, setEnrolledCourses] = useState<any[]>([])
+  const [achievements, setAchievements] = useState<any[]>([])
+  const [upcomingClasses, setUpcomingClasses] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,8 +18,8 @@ export function StudentDashboard() {
       try {
         setLoading(true)
         
-        // Use a 3-second timeout for the database fetch
-        const fetchPromise = supabase
+        // 1. Fetch Enrollments
+        const { data: enrollments } = await supabase
           .from('enrollments')
           .select(`
             *,
@@ -31,17 +33,32 @@ export function StudentDashboard() {
           `)
           .eq('student_id', user.id)
 
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Dashboard sync timeout')), 3000)
-        )
+        setEnrolledCourses(enrollments || [])
 
-        const { data, error } = await Promise.race([
-          fetchPromise,
-          timeoutPromise
-        ]) as any
+        // 2. Fetch Achievements
+        const { data: achievementData } = await supabase
+          .from('achievements')
+          .select('*')
+          .eq('student_id', user.id)
         
-        if (error) throw error
-        setEnrolledCourses(data || [])
+        setAchievements(achievementData || [])
+
+        // 3. Fetch Upcoming Classes (encuentros) for enrolled courses
+        if (enrollments && enrollments.length > 0) {
+          const courseIds = enrollments.map(e => e.course_id)
+          const { data: encuentros } = await supabase
+            .from('encuentros')
+            .select(`
+              *,
+              courses (nombre)
+            `)
+            .in('course_id', courseIds)
+            .gte('fecha', new Date().toISOString())
+            .order('fecha', { ascending: true })
+            .limit(3)
+          
+          setUpcomingClasses(encuentros || [])
+        }
       } catch (err: any) {
         console.warn('StudentDashboard: Sync failed or timed out.', err.message)
       } finally {
@@ -62,16 +79,29 @@ export function StudentDashboard() {
 
   const profileCompleteness = profile?.dni && profile?.fecha_nacimiento ? 100 : 75
 
-  const medals = [
-    { icon: Trophy, color: 'text-amber', bg: 'bg-amber/10', label: 'Pionero', desc: 'Completaste el Test Vocacional' },
-    { icon: Star, color: 'text-blue-400', bg: 'bg-blue-400/10', label: 'Analista', desc: 'Comparaste 3 universidades' },
-    { icon: Target, color: 'text-green-400', bg: 'bg-green-400/10', label: 'Enrolado', desc: 'Te inscribiste a tu primer curso' },
-    { icon: Zap, color: 'text-purple-400', bg: 'bg-purple-400/10', label: 'Estratega', desc: 'Definiste tu plan de carrera' },
-  ]
+  const medalConfig: Record<string, any> = {
+    'first_enrollment': { icon: Target, color: 'text-green-400', bg: 'bg-green-400/10', label: 'Enrolado', desc: 'Te inscribiste a tu primer curso' },
+    'quiz_completed': { icon: Trophy, color: 'text-amber', bg: 'bg-amber/10', label: 'Pionero', desc: 'Completaste el Test Vocacional' },
+    'comparison_done': { icon: Star, color: 'text-blue-400', bg: 'bg-blue-400/10', label: 'Analista', desc: 'Comparaste universidades' },
+  }
 
-  const agenda = [
-    { title: 'Próximo Encuentro', time: 'En 3 días', date: 'Sábado 10:00', type: 'Live' },
-  ]
+  const medals = achievements.length > 0 
+    ? achievements.map(a => medalConfig[a.type] || medalConfig['first_enrollment'])
+    : [
+        { icon: Trophy, color: 'text-gray-500', bg: 'bg-white/5', label: 'Bloqueado', desc: 'Completá acciones para ganar medallas' }
+      ]
+
+  const agenda = upcomingClasses.length > 0
+    ? upcomingClasses.map(c => ({
+        title: c.titulo,
+        time: new Date(c.fecha).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' }),
+        date: new Date(c.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+        type: 'Live',
+        course: c.courses.nombre
+      }))
+    : [
+        { title: 'Sin encuentros', time: '-', date: '-', type: 'Info' },
+      ]
 
   return (
     <div className="min-h-screen bg-[#0f0e0c] text-white pt-24 pb-20 font-sans">

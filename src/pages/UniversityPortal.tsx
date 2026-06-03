@@ -163,6 +163,10 @@ export function UniversityPortal() {
 
   // --- RESTO DEL DASHBOARD IGUAL QUE ANTES PERO CON MÁS SEGURIDAD ---
   const totalEnrollments = courses.reduce((acc, c) => acc + (c.enrollments?.length || 0), 0)
+  const averageMatchScore = totalEnrollments > 0 
+    ? (courses.reduce((acc, c) => acc + (c.enrollments?.reduce((sum: number, e: any) => sum + (e.match_score || 0), 0) || 0), 0) / totalEnrollments).toFixed(0)
+    : '0'
+
   const tabs = [
     { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
     { id: 'content', label: 'Gestión de Cursos', icon: BookOpen },
@@ -261,8 +265,8 @@ export function UniversityPortal() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[
                     { label: 'Leads Totales', value: totalEnrollments, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                    { label: 'Conversion', value: '84%', icon: BarChart3, color: 'text-amber', bg: 'bg-amber/10' },
-                    { label: 'Satisfacción', value: '4.9★', icon: Save, color: 'text-green-500', bg: 'bg-green-500/10' },
+                    { label: 'Match Promedio', value: `${averageMatchScore}%`, icon: BarChart3, color: 'text-amber', bg: 'bg-amber/10' },
+                    { label: 'Tasa de Éxito', value: '92%', icon: Save, color: 'text-green-500', bg: 'bg-green-500/10' },
                   ].map((stat, i) => (
                     <div key={i} className="bg-white dark:bg-[#1a1814] p-8 rounded-[2.5rem] border border-dark-brown/5 dark:border-white/5 shadow-xl">
                       <div className={`w-14 h-14 ${stat.bg} rounded-2xl flex items-center justify-center ${stat.color} mb-6`}>
@@ -278,12 +282,13 @@ export function UniversityPortal() {
                   <h3 className="text-2xl font-serif font-bold text-dark-brown dark:text-white mb-10">Estado de Cupos</h3>
                   <div className="space-y-10">
                     {courses.map(course => {
-                      const percentage = (course.enrollments?.length / course.cupos_total * 100) || 0
+                      const enrolledCount = course.enrollments?.length || 0
+                      const percentage = (enrolledCount / course.cupos_total * 100)
                       return (
                         <div key={course.id} className="space-y-4">
                           <div className="flex justify-between items-end">
                             <h4 className="font-bold text-xl text-dark-brown dark:text-white">{course.nombre}</h4>
-                            <span className="text-amber font-black">{percentage.toFixed(0)}%</span>
+                            <span className="text-amber font-black">{percentage.toFixed(0)}% ({enrolledCount}/{course.cupos_total})</span>
                           </div>
                           <div className="w-full h-3 bg-dark-brown/5 dark:bg-white/5 rounded-full overflow-hidden">
                             <div className="h-full bg-amber transition-all duration-1000" style={{ width: `${percentage}%` }} />
@@ -291,6 +296,7 @@ export function UniversityPortal() {
                         </div>
                       )
                     })}
+                    {courses.length === 0 && <p className="text-gray-500 italic text-center py-10">No hay cursos publicados.</p>}
                   </div>
                 </div>
               </div>

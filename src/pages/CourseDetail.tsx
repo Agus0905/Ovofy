@@ -111,23 +111,50 @@ export function CourseDetail() {
 
   const handleEnroll = async () => {
     if (!user) {
-      // Should show auth modal, but for now we assume it's handled by parent or context
+      alert('Debes iniciar sesión para inscribirte.')
       return
     }
 
     try {
-      const { error } = await supabase
+      // 1. Create Enrollment
+      const { error: enrollError } = await supabase
         .from('enrollments')
         .insert({
           student_id: user.id,
-          course_id: id
+          course_id: id,
+          match_score: Math.floor(Math.random() * 21) + 75 // Mock match score for now
         })
       
-      if (error) throw error
+      if (enrollError) throw enrollError
+
+      // 2. Update Capacity
+      const { error: updateError } = await supabase
+        .from('courses')
+        .update({ cupos_disponibles: course.cupos_disponibles - 1 })
+        .eq('id', id)
+      
+      if (updateError) console.error('Error updating capacity:', updateError)
+
+      // 3. Award Achievement (if first enrollment)
+      const { data: previousEnrollments } = await supabase
+        .from('enrollments')
+        .select('id')
+        .eq('student_id', user.id)
+      
+      if (previousEnrollments && previousEnrollments.length === 1) {
+        await supabase.from('achievements').insert({
+          student_id: user.id,
+          type: 'first_enrollment',
+          metadata: { course_name: course.nombre }
+        })
+      }
+
       setIsEnrolled(true)
-    } catch (err) {
+      alert(`¡Felicidades! Te inscribiste con éxito en ${course.nombre}.`)
+      
+    } catch (err: any) {
       console.error('Error enrolling:', err)
-      alert('Error al inscribirse. Por favor intenta de nuevo.')
+      alert(err.message || 'Error al inscribirse. Por favor intenta de nuevo.')
     }
   }
 

@@ -40,6 +40,7 @@ export function CompleteProfile() {
 
       console.log('Payload enviado:', payload)
 
+      // 1. Update Profile in DB
       const { data, error: upsertError } = await supabase
         .from('profiles')
         .upsert(payload, { 
@@ -53,13 +54,26 @@ export function CompleteProfile() {
         throw upsertError
       }
 
+      // 2. Award Achievement
+      await supabase.from('achievements').insert({
+        student_id: user.id,
+        type: 'profile_completed'
+      })
+
+      // 3. Update Auth Metadata for instant UI update
+      await supabase.auth.updateUser({
+        data: {
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          colegio: formData.colegio,
+          barrio: formData.barrio
+        }
+      })
+
       console.log('Upsert exitoso, datos recibidos:', data)
       
-      // En vez de window.location, intentamos navegar con un pequeño delay
-      // para asegurar que el trigger de la DB haya terminado.
-      setTimeout(() => {
-        window.location.href = '/perfil'
-      }, 500)
+      // Navigate to dashboard
+      window.location.href = '/perfil'
 
     } catch (err: any) {
       console.error('Excepción capturada en handleSubmit:', err)
